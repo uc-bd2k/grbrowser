@@ -1,0 +1,67 @@
+library(shiny)
+library(shinyjs)
+library(shinyBS)
+library(plotly)
+library(ggplot2)
+library(shinyLi)
+# library(shiny)
+# library(shinyjs)
+
+
+shinyUI(
+  fluidPage(
+    #adding head section to html with links to CSS files
+     tags$head(tags$link(href="css/ilincs.css",rel="stylesheet"))
+    #displaying header
+    ,includeHTML("www/html/nav.html")
+    ,titlePanel("Browse pre-computed  LINCS project GR values and dose-response curves")
+    ,hr()
+#     ,tags$h2(tags$a(href="http://eh3.uc.edu/apps/waterfallm/",em("Dose Response Curves")))
+#     ,tags$h2(tags$a(href="http://eh3.uc.edu/apps/scatterm/",em("GR50 Scatter Plots")))
+#     ,tags$h2(tags$a(href="http://eh3.uc.edu/apps/gridm/",em("Interactive Dose Response Curve")))
+        
+    ,column(2,
+        selectizeInput(
+            'dataSet', 'Select Dataset to Browse', choices = c("Data1", "Data2"), multiple = F
+        ),
+        actionButton("browsDataset", "Browse")
+    ),
+    column(10,
+        tabsetPanel(id = "tabs",
+            tabPanel(value="tab-data",
+                "About",
+                HTML("This page is about the pre-computed GR data datasets and tutorials")
+#                          radioButtons(inputId = "pick_data", label = "", choices = list("Input Data" = 1, "GR Values" = 2, "Fitted Parameters" = 3), selected = 1, inline = T),
+#                          DT::dataTableOutput("input_table")
+            )
+            ,tabPanel(value="interactiveDR",
+                "Dose Response Curves",
+                fluidRow(
+                    column(3,
+           # textInput("dataset", NULL, value = "slisca/dose_response_data.tsv")
+                        actionButton("goButton", "Go"),
+                        selectizeInput('choiceVar', 'Select dynamic variable', choices = NULL),
+                        selectizeInput('groupingVars', 'Select grouping variables', choices = NULL, multiple = TRUE),
+                        selectizeInput('EC50', 'Select EC50 variable', choices = NULL, multiple = TRUE),
+                        selectizeInput('Einf', 'Select Einf variable', choices = NULL, multiple = TRUE),
+                        selectizeInput('HillSlope', 'Select HillSlope variable', choices = NULL, multiple = TRUE),
+                        numericInput("xmin", "Xmin", value=0),
+                        numericInput("xmax", "Xmax", value=0)
+                    ),
+                    column(9,
+                            liDoseResponseGrid(anchorId="dose-response-grid-main")
+                    )), width=12)
+            ,tabPanel(value="interactiveDR",
+                "GR Metrics ",
+                liScatterplot(anchorId="scatter")
+            )
+#             ,tabPanel(value="interactiveDR",
+#                 "Interactive Dose Response Curve",
+#                 HTML("")
+#             )
+#     ,includeHTML("www/html/footer.html")
+    #loading scripts
+        )
+    )
+)
+)

@@ -1,0 +1,24 @@
+{"datafile":["www/GRmetrics_MCF10A.tsv"],
+    "description": ["<p>This is the MCF10A Common Project dataset</p>"],
+    "filterColumns":{},
+    "renameColumns":{},
+    "groupableColumns":["agent","Replicate"],
+    "doseresponse":{
+       "xmin":["0"],"xmax":["0"],
+       "defaultChoicevar":["cellLine"],
+       "defaultGroupingVars":["agent"],
+       "EC50":["GEC50"],
+       "Einf":["GRinf"],
+       "HillSlope":["Hill"],
+       "toggle":["1"],
+       "hideselector":["0"]
+    },
+     "scatterplot":{
+       "defaultChoicevar":["cellLine"],
+       "defaultGroupingVars":["agent"],
+       "GR50":["GR50"],
+       "GRmax":["GRmax"],
+       "GRinf":["GRinf"],
+       "HillSlope":["Hill"],
+       "hideselector":["0"]
+     }}

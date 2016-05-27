@@ -1,0 +1,150 @@
+library(shiny)
+library(shinyjs)
+library(shinyBS)
+library(plotly)
+library(ggplot2)
+library(shinyLi)
+library(jsonlite)
+
+shinyUI(
+  fluidPage(
+    #adding head section to html with links to CSS files
+     tags$head(tags$link(href="css/ilincs.css",rel="stylesheet"))
+     ,tags$head(tags$style("
+      .leftColWidth{max-width: 150px; }"
+     ))
+    #displaying header
+    ,includeHTML("www/html/nav.html")
+    , useShinyjs()
+    ,titlePanel("Browse pre-computed  LINCS project GR values and dose-response curves")
+    ,hr()
+    ,column(2,class="leftColWidth",
+        selectizeInput(
+            'dataSet', 'Select Dataset to Browse', choices = c("Data1", "Data2"), multiple = F
+        ),
+        actionButton("browseDataset", "Browse")
+    ),
+    column(10,
+        tabsetPanel(id = "tabs",
+            tabPanel(value="tab-about",
+                "About",
+                HTML("This page is about the pre-computed GR data datasets and tutorials"),
+                hr(),
+                conditionalPanel(
+                  condition = '1 == 0',
+                  selectInput("doseresponsegrid_hideselector", "", c(1,0)),
+                  selectInput("scatterplot_hideselector", "", c(1,0))
+                ),
+                
+                uiOutput("description")
+            )
+            ,tabPanel(value="tab-data",
+                      "Data Table",
+                      fluidRow(
+                        column(1, downloadButton('downloadData', label = 'Download data table')),
+                        column(2, radioButtons('download_type', label = "", choices = c("csv", "tsv"), inline = T))
+                      ),
+                      DT::dataTableOutput("input_table"),
+                      tags$style(type='text/css', "#downloadData { width:200px; margin-top: 10px; margin-bottom: 20px;}"),
+                      tags$head(tags$style("#input_table  {white-space: nowrap;  }"))
+            )
+            ,tabPanel(value="tab-drc",
+                "Dose Response Grid",
+                fluidRow(
+                  conditionalPanel(
+                  condition = 'input.doseresponsegrid_hideselector == 0',
+                    column(3, selectizeInput('doseresponsegrid_choiceVar', 'Choose Selector Variable', choices = NULL)),
+                    column(3, selectizeInput('doseresponsegrid_groupingVars', 'Choose Grid Variables', choices = NULL, multiple = TRUE))
+                    ),
+                  column(3, radioButtons(inputId = "pick_data", label = "", choices = list("GR50" = 1, "EC50" = 2), selected = 1, inline = T)),
+                  column(3, br(),actionButton("doseresponsegrid_goButton", "Go"))
+                  , width=12
+                  ),
+                fluidRow(
+                  column(12,liDoseResponseGrid(anchorId="dose-response-grid-main"),
+                         
+                         bsModal("graphPopup", "Graph Popup", "triggerGraphPopup",
+                         # size = "large",
+                         textInput("graphPopupText", label = "", value = "")
+                         # , actionButton("Close", label = "graphPopupClose")
+                         )
+                  )
+                  , width=12
+                )
+            )
+            ,tabPanel(value="tab-gr",
+                     "GR Metric Comparison",
+                     tags$div(id='scatter_text', "Please select the variable to plot and the values for the axes."),
+                     tags$head(tags$style("#scatter_text{color: #09505b; font-size: 20px; margin-top: 10px; margin-bottom: 10px;}")),
+                     fluidRow(
+                       column(1
+                              # tags$style(type='text/css', "#scatterImageType {width:75px; margin-top: 125px;}"),
+                              # selectInput('scatterImageType', label = '', choices = c('.eps', '.tiff'))
+                              ),
+                       column(1,
+                              downloadButton('downloadScatter', label = "Download image")
+                              # , tags$style(type='text/css', "#downloadScatter {margin-top: 25px; margin-bottom: 0px; margin-left: 0px; margin-right: 10px}")
+                       ),
+                       # tags$style(type="text/css", "#scatterImageType.label.control-label { display: none; }"),
+                       tags$style(type='text/css', "#scatterImageType {max-width: 50px; display: inline-block; }"),
+                       tags$script(HTML("$('#scatterImageType').closest('div').closest('div').css('display','inline-block'); alert($('#scatterImageType').closest('div').closest('div').css('display'))")),
+                       column(6,
+                              # jQuery(this).closest(".form-group").find("label").text();
+                              # downloadButton('downloadScatter', label = "Download image")
+                              # , tags$style(type='text/css', "#downloadScatter {margin-top: 25px; margin-bottom: 0px; margin-left: 0px; margin-right: 10px}")
+                              # , downloadButton('downloadScatter1', label = "Download image")
+                              selectInput(inputId='scatterImageType', label = NULL, choices = c('.eps', '.tiff'))
+                              # tags$style(type='text/css', "#textLabel {display: inline-block }"),
+                              # tags$style(type='text/css', "#textLabel2 {max-width: 50px; display: inline-block; }"),
+                              # tags$style(type='text/css', "#scatter_height { width:100px; margin-top: 0px;display: inline-block; max-width: 50px}"),
+                              # div(id='textLabel', 
+                              #     div(id="textLabel2", 'Plot height in pixels'),
+                              #     textInput('scatter_height', '', value = 700)
+                              #     ),
+                              # 
+                              # 
+                          )
+
+                     ),
+                     fluidRow(                                    
+                       column(2,
+                              selectInput('pick_parameter', 'Select parameter', choices = c('GR50', 'GRmax', 'GRinf', 'Hill')),
+                              selectInput('pick_var', 'Select variable', choices = c()),
+                              selectInput('x_scatter', 'Select x-axis value', choices = c()),
+                              selectizeInput('y_scatter', 'Select y-axis value', choices = c()),
+                              actionButton('clear', 'Clear'),
+                              actionButton('plot_scatter', 'Plot')
+                              #tags$style(type='text/css', "#clear { margin-top: 20px; margin-bottom: 20px;}"),
+                              #tags$style(type='text/css', "#plot_scatter { margin-top: 20px; margin-bottom: 20px;}")
+                       ),
+                       column(10, uiOutput("scatter1.ui"))
+                       
+                     )
+            )
+              
+                  #                     column(3, selectizeInput('scatterplot_choiceVar', 'Choose Selector Variable', choices = NULL)),
+                  #                     column(3, selectizeInput('scatterplot_groupingVars', 'Choose Grid Variables', choices = NULL, multiple = TRUE)),
+                  #                     column(3, br(),actionButton("scatterplot_goButton", "Go"))
+                  #                     , width=12
+                  #                   )
+#=============== Start D3 Scatterplot code ================
+#                 conditionalPanel(
+#                   condition = 'input.scatterplot_hideselector == 0',
+#                   fluidRow(
+#                     column(3, selectizeInput('scatterplot_choiceVar', 'Choose Selector Variable', choices = NULL)),
+#                     column(3, selectizeInput('scatterplot_groupingVars', 'Choose Grid Variables', choices = NULL, multiple = TRUE)),
+#                     column(3, br(),actionButton("scatterplot_goButton", "Go"))
+#                     , width=12
+#                   )
+#                 ),
+#                 fluidRow(
+#                   # radioButtons(inputId = "scatterplot_pick_data", label = "", choices = list("GR50" = 1, "EC50" = 2), selected = 1, inline = T),
+#                   column(12, liScatterplot(anchorId="main"))
+#                   , width=12
+#                )
+#            )
+#============== End D3 Scatterplot code ==========
+        )
+    )
+)
+)

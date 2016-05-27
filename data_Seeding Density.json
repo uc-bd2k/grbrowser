@@ -1,0 +1,27 @@
+{"datafile":["www/SeedingDensity_72h_GR_metrics_2016-01-11.tsv"],
+    "description": ["This is Seeding Density dataset with 72h GR metrics"],
+    "filterColumns":{},
+    "renameColumns":{"Small Molecule": "Agent", "Seeding density": "Density"},
+    "groupableColumns":["Agent","Density","Replicate","Cell line"],
+    "doseresponse":{
+       "xmin":["0"],"xmax":["0"],
+       "defaultChoicevar":["Cell line"],
+       "defaultGroupingVars":["Agent","Density"],
+       "EC50":["EC50 for GR curve"],
+       "Einf":["Einf for GR curve"],
+       "HillSlope":["Hill coeff. for GR curve"],
+       "EC50_IC":["EC50 for IC curve"],
+       "Einf_IC":["Einf for IC curve"],
+       "HillSlope_IC":["Hill coeff. for IC curve"],
+       "toggle":["1"],
+       "hideselector":["0"]
+    },
+     "scatterplot":{
+       "defaultChoicevar":["Cell line"],
+       "defaultGroupingVars":["Agent","Density"],
+       "GR50":["GR50"],
+       "GRmax":["GRmax"],
+       "GRinf":["Einf for GR curve"],
+       "HillSlope":["Hill coeff. for GR curve"],
+       "hideselector":["0"]
+     }}
