@@ -1,4 +1,4 @@
-cell_line	agent	time	GR50	GRmax	GR_AOC	GEC50	GRinf	Hill	Replicate
+cellLine	agent	time	GR50	GRmax	GR_AOC	GEC50	GRinf	Hill	Replicate
 MCF10A-GM (Broad)	Alpelisib	72	9.497	0.46293	0.11833	61.9747	-1	0.58569	MCF10A-GM (Broad) R1
 MCF10A-GM (Broad)	Dasatinib	72	0.19595	-0.087954	0.45427	0.31577	-0.18046	0.64583	MCF10A-GM (Broad) R1
 MCF10A-GM (Broad)	Etoposide	72	0.37443	0.039941	0.34257	0.33053	0.053896	0.91461	MCF10A-GM (Broad) R1
