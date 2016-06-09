@@ -310,6 +310,8 @@ print(4)
   })
   
 })
-  
-  
+  cancel.onSessionEnded <- session$onSessionEnded(function() {
+    graphics.off()
+    print('devices off')
+  })
 })
