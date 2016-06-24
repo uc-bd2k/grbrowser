@@ -312,7 +312,6 @@ observeEvent(input$pick_var, {
 
 output$boxplot <- renderPlotly({
   box = redrawPlotlyBox(input, values)
-  try(png(paste("/mnt/raid/tmp/junk2",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
   if(!is.null(box)) {
     redrawPlotlyBox(input, values)
   } else {stop()}
