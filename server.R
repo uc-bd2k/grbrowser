@@ -219,22 +219,22 @@ print(1.22)
   })
 })
 
-print(1.5)    
-observeEvent(input$plot_scatter, {
-  drawScatter(input, values)
-  output$plotlyScatter1 <- renderPlotly({
-    plot1 = isolate(drawScatter(input, values))
-    ggplotly(plot1)
-    layout(plot1, 
-           margin = list(
-             r = 10, 
-             t = 80, 
-             b = 60, 
-             l = 100)
-    )
-    
-  })
-})
+# print(1.5)    
+# observeEvent(input$plot_scatter, {
+#   drawScatter(input, values)
+#   output$plotlyScatter1 <- renderPlotly({
+#     plot1 = isolate(drawScatter(input, values))
+#     ggplotly(plot1)
+#     layout(plot1, 
+#            margin = list(
+#              r = 10, 
+#              t = 80, 
+#              b = 60, 
+#              l = 100)
+#     )
+#     
+#   })
+# })
 
 # Make scatterplot reactive to "pick_parameter" after first plot.
 observeEvent(input$pick_parameter, {
