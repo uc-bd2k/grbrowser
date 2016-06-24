@@ -86,6 +86,6 @@ drawScatter <- function (input, values)
   } else {
     p = p + xlab(parameter_choice) + ylab(parameter_choice) + ggtitle(paste(parameter_choice, "Scatterplot")) + labs(colour = "")
   }
-  plotScatter <<- p
+  plotScatter_box <<- p
   return(p)
 }

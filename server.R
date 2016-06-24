@@ -17,6 +17,40 @@ source('functions/parseLabel.R')
 
 shinyServer(function(input,output,session) {
   
+  #=========== plotly boxplots ===========================
+  redrawPlotlyBox <- function(input, values) {
+    
+    parameter_choice = input$pick_box_y
+    print(parameter_choice)
+    #print(df_sub)
+    if(parameter_choice == 'GR50') {
+      parameter_choice = 'log10[GR50]'
+    }
+    if(parameter_choice == 'Hill') {
+      parameter_choice = 'log2[HillSlope]'
+    }
+    boxplot_data = full_data[full_data[[ input$pick_box_x ]] %in% input$pick_box_factors,]
+    boxplot_data = boxplot_data[is.finite(boxplot_data[[parameter_choice]]),]
+    x_factor = factor(get(input$pick_box_x, envir = as.environment(boxplot_data)))
+    y_variable = get(parameter_choice, envir = as.environment(boxplot_data))
+    point_color = factor(get(input$pick_box_point_color, envir = as.environment(boxplot_data)))
+    if(dim(boxplot_data)[1] > 0) {
+      p <- ggplot(boxplot_data, aes(x = x_factor, y = y_variable))
+      p = p + geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) + geom_jitter(width = 0.5, show.legend = F, aes(colour = point_color)) + xlab('') + ylab(parameter_choice) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      plotScatter_box <<- p
+      # modify x and y names for hovertext
+      test_gg <<- plotly_build(p)
+      p = plotly_build(p)
+      for(i in 1:length(p$data)){
+        p$data[[i]]$text = gsub('x_factor', input$pick_box_x, p$data[[i]]$text)
+        p$data[[i]]$text = gsub('y_variable', parameter_choice, p$data[[i]]$text)
+      }
+      p$layout$xaxis$tickangle = -90
+      p$layout$margin$b = 200
+      return(p)
+    }
+  }
+  
   values <- reactiveValues(config=c(),data=c(),showtabs=0)
 
   update_browse_selector(session,c())
@@ -131,13 +165,18 @@ shinyServer(function(input,output,session) {
 #========== Download button for scatterplot images =======
   output$downloadScatter = downloadHandler(
     filename = function() {
-      return(paste(sub("^(.*)[.].*", "\\1", input$dataSet), input$scatterImageType, sep=''))
+      if(input$box_scatter == "Scatter plot") {
+        type = '_scatter'
+      } else {
+        type = '_box'
+      }
+      return(paste(sub("^(.*)[.].*", "\\1", input$dataSet), type, input$scatterImageType, sep=''))
     },
     content = function(filename) {
-      if(input$scatterImageType == '.eps') {
-        ggsave(filename = filename, plot = plotScatter, device = "eps")
+      if(input$scatterImageType == '.pdf') {
+        ggsave(filename = filename, plot = plotScatter_box, device = "pdf")
       } else {
-        ggsave(filename = filename, plot = plotScatter, device = "tiff", units = "in", width = 7, height = 7, dpi = 300)
+        ggsave(filename = filename, plot = plotScatter_box, device = "tiff", units = "in", width = 7, height = 7, dpi = 300)
       }
     }
   )
@@ -213,10 +252,39 @@ observeEvent(input$pick_parameter, {
   }
 })
 
-output$scatter1.ui <- renderUI({
-  plotlyOutput("plotlyScatter1", height = input$scatter_height)
+#=========== update select boxes for boxplot ============
+
+observeEvent(input$browseDataset, {
+  updateSelectInput(
+    session, 'pick_box_x',
+    choices = values$config$groupableColumns
+  )
+  updateSelectInput(
+    session, 'pick_box_point_color',
+    choices = values$config$groupableColumns
+  )
 })
-  
+
+observeEvent(input$pick_box_x, {
+  factor_choices = sort(unique(full_data[[input$pick_box_x]]))
+  updateSelectizeInput(
+    session, 'pick_box_factors',
+    choices = factor_choices,
+    selected = factor_choices[1]
+  )
+})
+
+observeEvent(input$box_scatter, {
+  factor_choices = sort(unique(full_data[[input$pick_box_x]]))
+  updateSelectizeInput(
+    session, 'pick_box_factors',
+    choices = factor_choices,
+    selected = factor_choices[1]
+  )
+})
+
+#===== update select boxes for scatterplot ==========
+
 observeEvent(input$browseDataset, {
   updateSelectInput(
     session, 'pick_var',
@@ -238,6 +306,43 @@ observeEvent(input$pick_var, {
     choices = sort(unique(full_data[[input$pick_var]])),
     selected = NULL
   )
+})
+
+#===== Boxplot drawing =========
+
+output$boxplot <- renderPlotly({
+  box = redrawPlotlyBox(input, values)
+  if(!is.null(box)) {
+    box
+  } else {stop()}
+})
+
+output$plot.ui2 <- renderUI({
+  if(input$box_scatter == "Box plot") {
+    plotlyOutput('boxplot', height = input$scatter_height)
+  } else {
+    plotlyOutput("plotlyScatter1", height = input$scatter_height)
+  }
+})
+
+output$scatter <- renderUI({
+  if(input$box_scatter == "Scatter plot") {
+    fluidRow(
+      selectInput('pick_parameter', 'Select parameter', choices = c('GR50', 'GRmax', 'GRinf', 'Hill', 'GR_AOC')),
+      selectInput('pick_var', 'Select variable', choices = values$config$groupableColumns),
+      selectInput('x_scatter', 'Select x-axis value', choices = unique(full_data[[input$pick_box_x]])),
+      selectizeInput('y_scatter', 'Select y-axis value', choices = unique(full_data[[input$pick_box_x]])),
+      bsButton('plot_scatter', 'Add', size = 'small'),
+      bsButton('clear', 'Clear', size = 'small')
+    )
+  } else {
+    fluidRow(
+      selectInput('pick_box_y', 'Select parameter', choices = c('GR50', 'GRmax', 'GRinf', 'Hill', 'GR_AOC')),
+      selectInput('pick_box_x', 'Select grouping variable', choices = values$config$groupableColumns),
+      selectInput('pick_box_point_color', 'Select additional point coloring', choices = values$config$groupableColumns),
+      selectizeInput('pick_box_factors', 'Select factors of grouping variable', choices = c(), multiple = T)
+    )
+  }
 })
 
 #==== Clear scatterplot on "browse" =========
