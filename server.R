@@ -219,22 +219,22 @@ print(1.22)
   })
 })
 
-# print(1.5)    
-# observeEvent(input$plot_scatter, {
-#   drawScatter(input, values)
-#   output$plotlyScatter1 <- renderPlotly({
-#     plot1 = isolate(drawScatter(input, values))
-#     ggplotly(plot1)
-#     layout(plot1, 
-#            margin = list(
-#              r = 10, 
-#              t = 80, 
-#              b = 60, 
-#              l = 100)
-#     )
-#     
-#   })
-# })
+print(1.5)    
+observeEvent(input$plot_scatter, {
+  drawScatter(input, values)
+  output$plotlyScatter1 <- renderPlotly({
+    plot1 = isolate(drawScatter(input, values))
+    ggplotly(plot1)
+    layout(plot1, 
+           margin = list(
+             r = 10, 
+             t = 80, 
+             b = 60, 
+             l = 100)
+    )
+    
+  })
+})
 
 # Make scatterplot reactive to "pick_parameter" after first plot.
 observeEvent(input$pick_parameter, {
@@ -311,11 +311,16 @@ observeEvent(input$pick_var, {
 
 #===== Boxplot drawing =========
 
+# output$boxplot <- renderPlotly({
+#   box = redrawPlotlyBox(input, values)
+#   if(!is.null(box)) {
+#     redrawPlotlyBox(input, values)
+#   } else {stop()}
+# })
+
 output$boxplot <- renderPlotly({
-  box = redrawPlotlyBox(input, values)
-  if(!is.null(box)) {
-    redrawPlotlyBox(input, values)
-  } else {stop()}
+  try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
+  redrawPlotlyBox(input, values)
 })
 
 output$plot.ui2 <- renderUI({
