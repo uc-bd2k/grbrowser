@@ -40,6 +40,7 @@ shinyServer(function(input,output,session) {
       plotScatter_box <<- p
       # modify x and y names for hovertext
       test_gg <<- plotly_build(p)
+      try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
       p = plotly_build(p)
       for(i in 1:length(p$data)){
         p$data[[i]]$text = gsub('x_factor', input$pick_box_x, p$data[[i]]$text)
