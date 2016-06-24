@@ -275,12 +275,14 @@ observeEvent(input$pick_box_x, {
 })
 
 observeEvent(input$box_scatter, {
-  factor_choices = sort(unique(full_data[[input$pick_box_x]]))
-  updateSelectizeInput(
-    session, 'pick_box_factors',
-    choices = factor_choices,
-    selected = factor_choices[1]
-  )
+  if(!is.null(input$pick_box_x)) {
+    factor_choices = sort(unique(full_data[[input$pick_box_x]]))
+    updateSelectizeInput(
+      session, 'pick_box_factors',
+      choices = factor_choices,
+      selected = factor_choices[1]
+    )
+  }
 })
 
 #===== update select boxes for scatterplot ==========
@@ -312,6 +314,7 @@ observeEvent(input$pick_var, {
 
 observeEvent(input$browseDataset, {
   output$boxplot <- renderPlotly({
+    try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
     box = redrawPlotlyBox(input, values)
     if(!is.null(box)) {
       box
