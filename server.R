@@ -38,10 +38,8 @@ shinyServer(function(input,output,session) {
       p <- ggplot(boxplot_data, aes(x = x_factor, y = y_variable))
       p = p + geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) + geom_jitter(width = 0.5, show.legend = F, aes(colour = point_color)) + xlab('') + ylab(parameter_choice) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
       plotScatter_box <<- p
-      q = p
       # modify x and y names for hovertext
       test_gg <<- plotly_build(p)
-      try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
       p = plotly_build(p)
       for(i in 1:length(p$data)){
         p$data[[i]]$text = gsub('x_factor', input$pick_box_x, p$data[[i]]$text)
@@ -49,7 +47,7 @@ shinyServer(function(input,output,session) {
       }
       p$layout$xaxis$tickangle = -90
       p$layout$margin$b = 200
-      return(q)
+      return(p)
     }
   }
   
@@ -312,12 +310,14 @@ observeEvent(input$pick_var, {
 
 #===== Boxplot drawing =========
 
-output$boxplot <- renderPlotly({
-  try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
-  box = redrawPlotlyBox(input, values)
-  if(!is.null(box)) {
-    ggplotly(box)
-  } else {stop()}
+observeEvent(input$browseDataset, {
+  output$boxplot <- renderPlotly({
+    try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
+    box = redrawPlotlyBox(input, values)
+    if(!is.null(box)) {
+      box
+    } else {stop()}
+  })
 })
 
 output$plot.ui2 <- renderUI({
