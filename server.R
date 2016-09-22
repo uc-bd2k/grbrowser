@@ -3,6 +3,7 @@ library(shinyjs)
 library(plotly)
 library(ggplot2)
 library(drc)
+library(stringr)
 
 
 groupingColumns = NULL
@@ -17,6 +18,7 @@ source('functions/parseLabel.R')
 
 shinyServer(function(input,output,session) {
   
+  boxplot_data_global = NULL
   #=========== plotly boxplots ===========================
   redrawPlotlyBox <- function(input, values) {
     
@@ -32,7 +34,7 @@ shinyServer(function(input,output,session) {
     boxplot_data = full_data[full_data[[ input$pick_box_x ]] %in% input$pick_box_factors,]
     boxplot_data = boxplot_data[is.finite(boxplot_data[[parameter_choice]]),]
     boxplot_data[[ input$pick_box_x ]] = factor(boxplot_data[[ input$pick_box_x ]])
-    
+
     if(!is.null(input$factorB) & !is.null(input$factorA)) {
       for(i in 1:length(input$factorB)) {
         boxplot_data[[ input$pick_box_x ]] = relevel(boxplot_data[[ input$pick_box_x ]], input$factorB[i])
@@ -246,7 +248,7 @@ shinyServer(function(input,output,session) {
  
 #======== Example dose-response grid ========= 
   observeEvent(input$drg_demo, {
-    if(input$drg_demo != '') {
+    if(input$drg_demo != '' && str_count(input$drg_demo, '=') == 1) {
       q = drawExamplePopup(input, values)
       output$graphPopupPlotDemo <- renderPlotly({
         #try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
@@ -265,7 +267,7 @@ shinyServer(function(input,output,session) {
 #========== Main dose-response grid =============
   observeEvent(input$'dose-response-grid-main', {
     q = parseLabel(input, values, full_data)
-    if (input$'dose-response-grid-main' != '') {
+    if (input$'dose-response-grid-main' != '' && str_count(input$'dose-response-grid-main', '=') == 1) {
       output$graphPopupPlot <- renderPlotly({
         #try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
         ggplotly(q)
@@ -518,8 +520,6 @@ observeEvent(c(input$factorA, input$factorB, input$pick_box_y), {
     print(input$pick_box_x)
     rowsA = wil_data[[input$pick_box_x]] %in% input$factorA
     rowsB = wil_data[[input$pick_box_x]] %in% input$factorB
-    print(rowsA)
-    print(rowsB)
     wil_dataA = wil_data[rowsA,input$pick_box_y]
     wil_dataB = wil_data[rowsB,input$pick_box_y]
     print(head(wil_dataA))

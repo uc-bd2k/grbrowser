@@ -1,5 +1,5 @@
 drawPopup <- function(curve_plot, parameters, values, example) {
-  Concentration = 10^(seq(-5, 5, length.out = 200))
+  Concentration = 10^(seq(-4, 2, length.out = 200))
   curve_data_all = NULL
   len = dim(curve_plot)[1]
   for(row in 1:len) {
