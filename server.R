@@ -4,6 +4,7 @@ library(plotly)
 library(ggplot2)
 library(drc)
 library(stringr)
+library(markdown)
 
 
 groupingColumns = NULL
@@ -223,9 +224,11 @@ shinyServer(function(input,output,session) {
       
       values$config <- fromJSON(json_data)
       
-      output$description <- renderUI({
-        HTML(values$config$description)
-      })
+      output$datasetInfo <- renderUI(
+        tags$div(tags$h3(values$config$title),
+                 HTML(markdownToHTML(text=values$config$description,
+                                     options=c('fragment_only'))))
+      )
 
       values$data <- read.table(values$config$datafile, sep="\t", header=TRUE, check.names=FALSE, fill=TRUE, stringsAsFactors = F)
       

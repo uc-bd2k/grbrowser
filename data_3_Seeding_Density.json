@@ -1,5 +1,7 @@
-{"datafile":["www/SeedingDensity_72h_GR_metrics_2016-01-11.tsv"],
-    "description": ["This is Seeding Density dataset with 72h GR metrics"],
+{
+    "datafile":["www/SeedingDensity_72h_GR_metrics_2016-01-11.tsv"],
+    "title": ["HMS LINCS Seeding Density Project"],
+    "description": ["The density- and context-dependent sensitivities of 6 breast cancer cell lines plated at 6 different cell densities were assayed by the HMS LINCS Center by measuring cell counts 72 hours after treatment with each of 12 small molecule inhibitors across a 9-point dose range. For further information about the assay and to download the GR metrics dataset \\([#20258](http://lincs.hms.harvard.edu/db/datasets/20258/)) or the cell count datasets from which the metrics were calculated \\([#20256](http://lincs.hms.harvard.edu/db/datasets/20256/) and [#20257](http://lincs.hms.harvard.edu/db/datasets/20257/)), please visit the HMS LINCS Database."],
     "filterColumns":{},
     "renameColumns":{"Small Molecule": "Agent", "Seeding density": "Density"},
     "groupableColumns":["Agent","Density","Replicate","Cell line"],
@@ -24,4 +26,5 @@
        "GRinf":["Einf for GR curve"],
        "HillSlope":["Hill coeff. for GR curve"],
        "hideselector":["0"]
-     }}
+     }
+}
