@@ -34,7 +34,7 @@ shinyServer(function(input,output,session) {
     boxplot_data = full_data[full_data[[ input$pick_box_x ]] %in% input$pick_box_factors,]
     boxplot_data = boxplot_data[is.finite(boxplot_data[[parameter_choice]]),]
     boxplot_data[[ input$pick_box_x ]] = factor(boxplot_data[[ input$pick_box_x ]])
-
+    
     if(!is.null(input$factorB) & !is.null(input$factorA)) {
       for(i in 1:length(input$factorB)) {
         boxplot_data[[ input$pick_box_x ]] = relevel(boxplot_data[[ input$pick_box_x ]], input$factorB[i])
@@ -57,8 +57,13 @@ shinyServer(function(input,output,session) {
       p1 = plotly_build(p)
       #test_box <<- p1
       # Get y range:
-      top_y = p1[[2]]$yaxis$range[2]
-      bottom_y = p1[[2]]$yaxis$range[1]
+      if(is.null(p1$layout)) {
+        top_y = p1$x$layout$yaxis$range[2]
+        bottom_y = p1$x$layout$yaxis$range[1]
+      } else {
+        top_y = p1[[2]]$yaxis$range[2]
+        bottom_y = p1[[2]]$yaxis$range[1]
+      }
       total_y_range = top_y - bottom_y
       
       q <- ggplot(boxplot_data, aes(x = x_factor, y = y_variable, ymin = bottom_y, ymax = top_y))
@@ -71,7 +76,11 @@ shinyServer(function(input,output,session) {
         #for(i in 1:length(levels(x_factor))) {
         len = length(input$factorA) + length(input$factorB)
         for(i in 1:len) {
-          whiskers[i] = fivenum(p1[[1]][[i]]$y)[5]
+          if(is.null(p1$data)) {
+            whiskers[i] = fivenum(p1$x$data[[i]]$y)[5]
+          } else {
+            whiskers[i] = fivenum(p1[[1]][[i]]$y)[5]
+          }
         }
         top_whisker = max(whiskers, na.rm = TRUE)
         y_range = (top_y - top_whisker)/total_y_range
@@ -123,7 +132,11 @@ shinyServer(function(input,output,session) {
         }
         
         p = plotly_build(p)
-        p[[2]]$yaxis$range[2] = top_y
+        if(is.null(p$layout)) {
+          p$x$layout$yaxis$range[2] = top_y
+        } else {
+          p[[2]]$yaxis$range[2] = top_y
+        }
       } else {
         p = plotly_build(p)
       }
@@ -140,13 +153,13 @@ shinyServer(function(input,output,session) {
         }
         # p$layout$xaxis$tickangle = -90
         # p$layout$margin$b = 200
-        bottom_margin = max(nchar(p$layout$xaxis$ticktext), na.rm = TRUE)
-        left = nchar(p$layout$xaxis$ticktext[1])
-        p$layout$xaxis$tickangle = -45
-        p$layout$margin$b = 15 + 6*bottom_margin
+        bottom_margin = max(nchar(p$x$layout$xaxis$ticktext), na.rm = TRUE)
+        left = nchar(p$x$layout$xaxis$ticktext[1])
+        p$x$layout$xaxis$tickangle = -45
+        p$x$layout$margin$b = 15 + 6*bottom_margin
         if(left > 10) {
-          left_margin = p$layout$margin$l + (left-10)*6
-          p$layout$margin$l = left_margin
+          left_margin = p$x$layout$margin$l + (left-10)*6
+          p$x$layout$margin$l = left_margin
         }
       } else {
         for(i in 1:length(p$data)){
@@ -252,7 +265,7 @@ shinyServer(function(input,output,session) {
       q = drawExamplePopup(input, values)
       output$graphPopupPlotDemo <- renderPlotly({
         #try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
-        ggplotly(q)
+        ggplotly(q) %>%
         layout(
           xaxis = list(range = c(-4,2),
                        tickmode = 'linear',
@@ -270,7 +283,7 @@ shinyServer(function(input,output,session) {
     if (input$'dose-response-grid-main' != '' && str_count(input$'dose-response-grid-main', '=') == 1) {
       output$graphPopupPlot <- renderPlotly({
         #try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
-        ggplotly(q)
+        ggplotly(q) %>%
         layout(
           xaxis = list(range = c(-4,2),
                        tickmode = 'linear',
@@ -326,7 +339,7 @@ observeEvent(input$plot_scatter, {
     plot1 = isolate(drawScatter(input, values))
 print(1.1)    
 #try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
-    ggplotly(plot1)
+    ggplotly(plot1) %>%
     layout(plot1, 
            margin = list(
              r = 10, 
@@ -343,7 +356,7 @@ observeEvent(input$plot_scatter, {
   drawScatter(input, values)
   output$plotlyScatter1 <- renderPlotly({
     plot1 = isolate(drawScatter(input, values))
-    ggplotly(plot1)
+    ggplotly(plot1) %>%
     layout(plot1, 
            margin = list(
              r = 10, 
@@ -360,7 +373,7 @@ observeEvent(input$pick_parameter, {
   if(input$plot_scatter > 0) {
     output$plotlyScatter1 <- renderPlotly({
       plot1 = isolate(drawScatter(input, values))
-      ggplotly(plot1)
+      ggplotly(plot1) %>%
       layout(plot1,
              margin = list(
                r = 10, 
@@ -566,8 +579,7 @@ observeEvent(input$browseDataset, {
     df_full <<- NULL
     print(3)
     #try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
-    ggplotly(p)
-    print(4)
+    ggplotly(p) %>%
     layout(p, hovermode = FALSE)
   })
 })
@@ -600,8 +612,7 @@ observeEvent(input$clear, {
     df_full <<- NULL
 print(3)
 #try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
-    ggplotly(p)
-print(4)
+    ggplotly(p) %>%
     layout(p, hovermode = FALSE)
 
   })
