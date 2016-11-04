@@ -220,7 +220,7 @@ shinyServer(function(input,output,session) {
         return(NULL)
       
       cat('file ', inFile, ' received\n')
-      json_data <- readLines(inFile)
+      json_data <- readLines(paste0("json/", inFile))
       
       values$config <- fromJSON(json_data)
       

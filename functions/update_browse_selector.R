@@ -1,5 +1,5 @@
 update_browse_selector <- function(session, prev_selection) {
-  datasets <- list.files(pattern="*.json")
+  datasets <- list.files(path = "json", pattern="*.json")
   dataset_choices <- datasets
   
   if (length(prev_selection)==0 && length(datasets)>0) { prev_selection <- dataset_choices[1] }
@@ -12,7 +12,8 @@ update_browse_selector <- function(session, prev_selection) {
                       }
                       )
                )
-  
+  test2 <<- datasets_choices
+  print(datasets_choices)
   updateRadioButtons(session, 'dataSet', 
                      choices=datasets_choices,
                      selected=prev_selection
