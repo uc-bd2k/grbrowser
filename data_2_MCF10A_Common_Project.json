@@ -1,5 +1,7 @@
-{"datafile":["www/GRmetrics_MCF10A.tsv"],
-    "description": ["<p>This is the MCF10A Common Project dataset</p>"],
+{
+    "datafile":["www/GRmetrics_MCF10A.tsv"],
+    "title": ["LINCS Phase II MCF10A Common Project"],
+    "description": ["As a pilot study for the LINCS MCF 10A Common Project, the dose-dependent sensitivity of a common isolate of the nonmalignant breast cell line MCF 10A was assayed independently by 4 of the LINCS Data and Signature Generation Centers by measuring cell counts or by estimating proliferation using the CellTiter-Glo® assay 72 hours after treatment with each of 8 small molecule inhibitors across a 9-point dose range."],
     "filterColumns":{},
     "renameColumns":{},
     "groupableColumns":["agent","Replicate"],
@@ -21,4 +23,5 @@
        "GRinf":["GRinf"],
        "HillSlope":["Hill"],
        "hideselector":["0"]
-     }}
+     }
+}

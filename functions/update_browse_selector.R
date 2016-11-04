@@ -4,11 +4,17 @@ update_browse_selector <- function(session, prev_selection) {
   
   if (length(prev_selection)==0 && length(datasets)>0) { prev_selection <- dataset_choices[1] }
   
-  datasets_choices <- setNames(datasets, lapply(datasets,function(xxx){substr(xxx,6,nchar(xxx)-5)}))
+  datasets_choices <-
+      setNames(datasets,
+               lapply(datasets,
+                      function(xxx) {
+                          gsub("_", " ", gsub("^data_\\d+_(.*?)\\.json$", "\\1", xxx))
+                      }
+                      )
+               )
   
-  updateSelectizeInput(session, 'dataSet', 
-                       choices = datasets_choices, # s_options, # dataset_choices, 
-                       server = TRUE, 
-                       selected=prev_selection
+  updateRadioButtons(session, 'dataSet', 
+                     choices=datasets_choices,
+                     selected=prev_selection
   )
 }
