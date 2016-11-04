@@ -17,5 +17,9 @@
 }
 
 .list-container .title {
-    font-size: 13pt;
+    font-size: 23pt;
+}
+
+.list-container {
+    font-size: 12pt;
 }
