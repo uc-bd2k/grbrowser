@@ -4,8 +4,8 @@
 #scatterImageType { margin-top: 0px; margin-bottom: 20px; margin-left: 0px;}
 #plotBoxL2 { white-space: nowrap; margin-top: 25px; margin-left: 10px; margin-right: 0px}
 #scatter_height { width:50px; margin-top: 20px; margin-left: 20px; margin-right: 0px}
-#clear { margin-top: 10px; margin-bottom: 10px; float: center;}
-#plot_scatter { margin-top: 10px; margin-bottom: 10px; float: center}
+#clear { margin-top: 10px; margin-bottom: 10px;}
+#plot_scatter { margin-top: 10px; margin-bottom: 10px;}
 
 #datasetInfo h3 {
     margin-top: 0;
@@ -16,10 +16,11 @@
     text-decoration: inherit;
 }
 
-.list-container .title {
-    font-size: 23pt;
+.global, .track-container, .svg-table {
+    font-family: Arial;
+    font-size: inherit;
 }
 
-.list-container {
-    font-size: 12pt;
+.list-container .title {
+    font-size: 14pt;
 }

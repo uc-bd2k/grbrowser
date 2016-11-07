@@ -50,7 +50,8 @@ figcaption h1 {
 
 .tab-content {
     margin-top: 1em;
-    max-width: 1050px;
+    /* Adjusted for grbrowser. */
+    max-width: 1200px;
 }
 
 .math {
