@@ -2,7 +2,6 @@ library(shiny)
 library(shinyjs)
 library(plotly)
 library(ggplot2)
-library(drc)
 library(stringr)
 library(markdown)
 

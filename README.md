@@ -1,14 +1,19 @@
 # grbrowser
 
-One of the Shiny application running at http://grcalculator.org
+One of the Shiny applications running at http://www.grcalculator.org
 
 ## Installation
 
-Install two R package dependencies:
+Install R package dependencies:
 
 ```r
-devtools::install_github("uc-bd2k/GRmetrics")
+# Install our "shinyLi" package
+install.packages("devtools")
 devtools::install_github("uc-bd2k/shinyLi")
+
+# Install CRAN package dependencies
+install.packages(c("shiny","shinyjs","shinyBS","ggplot2","plotly","jsonlite","stringr","markdown"))
+
 ```
 
 ## Running the application from R command line

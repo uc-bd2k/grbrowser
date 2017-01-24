@@ -64,7 +64,7 @@ shinyUI(
                 # Dose-response grid tab
                 tabPanel(
                     value="tab-drc",
-                    "Dose Response Grid",
+                    "Dose-Response Grid",
                     fluidRow(
                         column(
                             12,
