@@ -49,7 +49,7 @@ shinyServer(function(input,output,session) {
     point_color = factor(get(input$pick_box_point_color, envir = as.environment(boxplot_data)))
     if(dim(boxplot_data)[1] > 0) {
       p <- ggplot(boxplot_data, aes(x = x_factor, y = y_variable))
-      p = p + geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) + geom_jitter(width = 0.5, show.legend = F, aes(colour = point_color)) + xlab('') + ylab(parameter_choice)
+      p = p + geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) + geom_jitter(width = 0.2, show.legend = F, aes(colour = point_color)) + xlab('') + ylab(parameter_choice)
       
       # modify x and y names for hovertext
       #test_gg <<- plotly_build(p)
