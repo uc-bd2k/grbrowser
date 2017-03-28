@@ -2,6 +2,7 @@ drawPopup <- function(curve_plot, parameters, values, example) {
   Concentration = 10^(seq(-4, 2, length.out = 200))
   curve_data_all = NULL
   len = dim(curve_plot)[1]
+  print(curve_plot)
   for(row in 1:len) {
     logistic_3u = function(c){GRinf + (1 - GRinf)/(1 + (c/EC50)^Hill)}
     curve_data = as.matrix(Concentration)
@@ -20,22 +21,22 @@ drawPopup <- function(curve_plot, parameters, values, example) {
       curve_data = as.data.frame(curve_data)
       exper = paste(curve_plot$DrugName[row], curve_plot$CellLine[row], sep = ' ')
     } else {
-      if(values$config$datafile == 'www/SeedingDensity_72h_GR_metrics_2016-01-11.tsv') {
-        EC50 = curve_plot$`EC50 for GR curve`[row]
+      if(values$config$datafile == 'www/20170303_Density_for_GRB.tsv') {
+        EC50 = curve_plot$`GEC50`[row]
         GRinf = curve_plot$GRinf[row]
-        Hill = curve_plot$HillSlope[row]
-        if(curve_plot$`GR curve fit`[row] == "sigmoidal fit: x = Einf + (1-Einf)/(1+ (x/EC50)^Hill)") {
+        Hill = curve_plot$HillSope[row]
+        if(is.finite(curve_plot$`GEC50`[row])) {
           GR = apply(curve_data, 1, logistic_3u)
         } else {
           GR = curve_plot$GRinf[row]
         }
         curve_data = cbind(curve_data, GR)
         curve_data = as.data.frame(curve_data)
-        exper = paste(curve_plot$`Agent`[row], curve_plot$`Density`[row], curve_plot$`Replicate`[row] , curve_plot$`Cell line`[row], sep = ' ')
-      } else if(values$config$datafile == 'www/Heiser_al_GRmetrics.tsv') {
+        exper = paste(curve_plot$`Agent`[row], curve_plot$`Density`[row], curve_plot$`Replicate`[row], curve_plot$`Cell_Line`[row], sep = ' ')
+      } else if(values$config$datafile == 'www/20170303_Heiser_for_GRB.tsv') {
         EC50 = curve_plot$`GEC50`[row]
         GRinf = curve_plot$GRinf[row]
-        Hill = curve_plot$Hill_GR[row]
+        Hill = curve_plot$HillSlope[row]
         if(is.finite(curve_plot$GEC50[row])) {
           GR = apply(curve_data, 1, logistic_3u)
         } else {
@@ -43,11 +44,11 @@ drawPopup <- function(curve_plot, parameters, values, example) {
         }
         curve_data = cbind(curve_data, GR)
         curve_data = as.data.frame(curve_data)
-        exper = paste(curve_plot$DrugName[row], curve_plot$CellLine[row], curve_plot$BiolReplicate[row], sep = ' ')
-      } else if(values$config$datafile == 'www/LJP_GRmetrics_merged.tsv') {
+        exper = paste(curve_plot$Perturbagen[row], curve_plot$Cell_Line[row], curve_plot$Replicate_ID[row], sep = ' ')
+      } else if(values$config$datafile == 'www/20170224_LJP_for_GRB.tsv') {
         EC50 = curve_plot$`GEC50`[row]
         GRinf = curve_plot$GRinf[row]
-        Hill = curve_plot$Hill[row]
+        Hill = curve_plot$HillSlope[row]
         if(curve_plot$GEC50[row] != 0) {
           GR = apply(curve_data, 1, logistic_3u)
         } else {
@@ -55,11 +56,11 @@ drawPopup <- function(curve_plot, parameters, values, example) {
         }
         curve_data = cbind(curve_data, GR)
         curve_data = as.data.frame(curve_data)
-        exper = paste(curve_plot$smallMolecule[row], curve_plot$cellLine[row], sep = ' ')
-      } else if(values$config$datafile == 'www/GRmetrics_MCF10A.tsv') {
+        exper = paste(curve_plot$`Small_Molecule`[row], curve_plot$`Cell_Line`[row], sep = ' ')
+      } else if(values$config$datafile == 'www/20170309_MCF10A_for_GRB.tsv') {
         EC50 = curve_plot$`GEC50`[row]
         GRinf = curve_plot$GRinf[row]
-        Hill = curve_plot$Hill[row]
+        Hill = curve_plot$HillSlope[row]
         if(curve_plot$GEC50[row] != 0) {
           GR = apply(curve_data, 1, logistic_3u)
         } else {
@@ -67,7 +68,7 @@ drawPopup <- function(curve_plot, parameters, values, example) {
         }
         curve_data = cbind(curve_data, GR)
         curve_data = as.data.frame(curve_data)
-        exper = paste(curve_plot$agent[row], curve_plot$cellLine[row], curve_plot$Replicate[row], sep = ' ')
+        exper = paste(curve_plot$`Small_Molecule`[row], curve_plot$`Cell_Line`[row], curve_plot$Replicate[row], sep = ' ')
       }
     }
     curve_data$experiment = exper
