@@ -1,6 +1,6 @@
 parseLabel = function(input, values, full_data) {
   graphParams <- input$'dose-response-grid-main'
-  print('graphparams')
+  print('graphparams_input')
   print(graphParams)
   graphParams = URLdecode(graphParams)
   graphParams = trimws(graphParams)
@@ -12,27 +12,41 @@ parseLabel = function(input, values, full_data) {
     print(1)
     params <- unlist(strsplit(graphParams, split = '='))
     if(grepl(',', params[1])) {
-      if(grepl('_', params[2])) {
+      # if(grepl('_', params[2])) {
+      #   pick = gsub('[^,]*$', '', params[1])
+      #   pick_vector = unlist(strsplit(pick, split = ','))
+      #   print('pick')
+      #   print(pick_vector)
+      #   params[1] = gsub('.*,' , '', params[1])
+      #   params[1] = trimws(params[1]) 
+      #   params <- unlist(strsplit(params, split = '_'))
+      # } else if(grepl('_', params[1])) {
+      #if(grepl('_', params[2])) {
         pick = gsub('[^,]*$', '', params[1])
         pick_vector = unlist(strsplit(pick, split = ','))
-        print('pick')
+        params[1] = gsub('.*,' , ' ', params[1])
+        params[1] = trimws(params[1])
+        
+      #} 
+      # else {
+      #   print('comma')
+      #   pick = gsub('[^,]*$', '', params[1])
+      #   pick_vector = unlist(strsplit(pick, split = ','))
+      #   params[1] = gsub('.*,' , ' ', params[1])
+      #   params[1] = trimws(params[1])
+      # }
+      # print('params')
+      # print(params)
+        # Seeding density dataset
+        if(params[1] == "Agent_Density") {
+          params = unlist(strsplit(params, split = "_"))
+        } else if(grepl("_", pick_vector)) {
+          pick_vector2 = pick_vector
+        }
+        print('pick_vector')
         print(pick_vector)
-        params[1] = gsub('.*,' , '', params[1])
-        params[1] = trimws(params[1]) 
-        params <- unlist(strsplit(params, split = '_'))
-      } else if(grepl('_', params[1])) {
-        print('comma')
-        pick = gsub('[^,]*$', '', params[1])
-        pick_vector2 = unlist(strsplit(pick, split = ','))
-        params[1] = gsub('.*,' , ' ', params[1])
-        params[1] = trimws(params[1])
-      } else {
-        print('comma')
-        pick = gsub('[^,]*$', '', params[1])
-        pick_vector = unlist(strsplit(pick, split = ','))
-        params[1] = gsub('.*,' , ' ', params[1])
-        params[1] = trimws(params[1])
-      }
+        print('pick_vector params')
+        print(params)
     }
     if(length(params) == 4) { #seeding density dataset with no toggle
       col1 = params[1]
@@ -51,7 +65,9 @@ parseLabel = function(input, values, full_data) {
         popupData = popupData[popupData[[ toggle_vector[2] ]] %in% pick_vector,]
       }
       # 0 for example data on first tab, 1 for dose-response tab
-      q = drawPopup(popupData, params, values, 1)
+      print('popupData')
+      print(popupData)
+      q = drawPopup(popupData, values, 1)
       
       
     } else if(length(params) == 2) {
@@ -84,8 +100,11 @@ parseLabel = function(input, values, full_data) {
           }
         }
       }
-      
-      q = drawPopup(popupData, params, values, 1)
+      print('popupdata')
+      print(head(popupData))
+      print('params')
+      print(params)
+      q = drawPopup(popupData, values, 1)
     } else {
       q = ggplot(full_data) + geom_blank()
     }
