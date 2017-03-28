@@ -1,0 +1,27 @@
+{
+    "datafile":["www/20170224_LJP_for_GRB.tsv"],
+    "title": ["Broad Institute LINCS Center for Transcriptomics - HMS LINCS Center Joint Project"],
+    "description": ["The dose-dependent sensitivities of 6 nonmalignant breast and breast cancer cell lines were assayed by the HMS LINCS Center by measuring cell counts 72 hours after treatment with each of 107 small molecule inhibitors across a 6-point dose range. For further information about the assay and reagents and to download the cell count datasets from which the metrics reported here were calculated \\(HMS LINCS Datasets [#20245 to #20251](http://lincs.hms.harvard.edu/db/datasets/)), please visit the HMS LINCS Database. As part of this LINCS Pilot Phase Joint Project, the Broad Institute LINCS Center for Transcriptomics generated [L1000 gene expression data](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE70138) for the same set of cells and perturbagens."],
+    "filterColumns":{},
+    "renameColumns":{"Cell_Name": "Cell_Line", "Small_Mol_Name": "Small_Molecule"},
+    "groupableColumns":["Small_Molecule","Cell_Line"],
+    "doseresponse":{
+       "xmin":["0"],"xmax":["0"],
+       "defaultChoicevar":["Cell_Line"],
+       "defaultGroupingVars":["Small_Molecule"],
+       "EC50":["GEC50"],
+       "Einf":["GRinf"],
+       "HillSlope":["GR_Hill_Coeff"],
+       "toggle":["1"],
+       "hideselector":["0"]
+    },
+     "scatterplot":{
+       "defaultChoicevar":["Cell_Line"],
+       "defaultGroupingVars":["Small_Molecule"],
+       "GR50":["GR50"],
+       "GRmax":["GRmax"],
+       "GRinf":["GRinf"],
+       "HillSlope":["GR_Hill_Coeff"],
+       "hideselector":["0"]
+     }
+}

@@ -1,0 +1,27 @@
+{
+    "datafile":["www/20170303_Heiser_for_GRB.tsv"],
+    "title": ["Microenvironment Perturbagen (MEP) LINCS Center - HMS LINCS Center Joint Project"],
+    "description": ["The dose-dependent sensitivities of 73 nonmalignant breast and breast cancer cell lines were assayed by the MEP LINCS Center by estimating proliferation using the CellTiter-Glo® assay 72 hours after treatment with each of 139 small molecule and antibody perturbagens across a 9-point dose range. Analysis of a subset of these data using traditional growth inhibition metrics \\(GI<sub>50</sub>) was previously described in Heiser et al. \\(2012) \\(PMID: [22003129](http://www.ncbi.nlm.nih.gov/pubmed/22003129)) and Daemen et al. \\(2013) \\(PMID: [24176112](http://www.ncbi.nlm.nih.gov/pubmed/24176112)). Here, the complete dataset was reanalyzed by the HMS LINCS Center using GR metrics to account for differences in growth rates across the cell lines and treatment conditions. For further information about the assay and reagents, the CTG data from which the metrics reported here were calculated, and the dose-response metric signatures obtained from these data, please visit the HMS LINCS Database \\(HMS LINCS Datasets [#20268 to #20271](http://lincs.hms.harvard.edu/db/datasets/))."],
+    "filterColumns":{},
+    "renameColumns":{"Cell_Name": "Cell_Line", "Perturbagen_Name": "Perturbagen"},
+    "groupableColumns":["Perturbagen","Cell_Line"],
+    "doseresponse":{
+       "xmin":["0"],"xmax":["0"],
+       "defaultChoicevar":["Cell_Line"],
+       "defaultGroupingVars":["Perturbagen"],
+       "EC50":["GEC50"],
+       "Einf":["GRinf"],
+       "HillSlope":["GR_Hill_Coeff"],
+       "toggle":["1"],
+       "hideselector":["0"]
+    },
+     "scatterplot":{
+       "defaultChoicevar":["Cell_Line"],
+       "defaultGroupingVars":["Perturbagen"],
+       "GR50":["GR50"],
+       "GRmax":["GRmax"],
+       "GRinf":["GRinf"],
+       "HillSlope":["GR_Hill_Coeff"],
+       "hideselector":["0"]
+     }
+}
