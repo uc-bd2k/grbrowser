@@ -400,13 +400,15 @@ observeEvent(input$browseDataset, {
   )
 })
 
-observeEvent(input$pick_box_x, {
-  picks = sort(unique(full_data[[input$pick_box_x]]))
-  updateSelectizeInput(
-    session, 'pick_box_factors',
-    choices = picks,
-    selected = picks[1:min(10, length(picks))]
-  )
+observeEvent(c(input$browseDataset, input$pick_box_x, input$tabs), {
+  if(!is.null(input$pick_box_x)) {
+    picks = sort(unique(full_data[[input$pick_box_x]]))
+    updateSelectizeInput(
+      session, 'pick_box_factors',
+      choices = picks,
+      selected = picks[1:min(10, length(picks))]
+    )
+  }
 })
 
 observeEvent(input$box_scatter, {
