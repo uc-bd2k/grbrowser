@@ -1,14 +1,14 @@
 {
     "datafile":["www/20170303_Density_for_GRB.tsv"],
     "title": ["HMS LINCS Center Seeding Density Project"],
-    "description": ["The density- and context-dependent sensitivities of 6 breast cancer cell lines plated at 6 different cell densities were assayed by the HMS LINCS Center by measuring cell counts using imaging 72 hours after treatment with each of 12 small molecule inhibitors across a 9-point dose range. For further information about the assay and reagents and to download the this dataset \\(HMS LINCS Dataset [#20258](http://lincs.hms.harvard.edu/db/datasets/20258/)) or the cell count datasets from which the reported dose-response metrics were calculated \\(HMS LINCS Datasets [#20256](http://lincs.hms.harvard.edu/db/datasets/20256/) and [#20257](http://lincs.hms.harvard.edu/db/datasets/20257/)), please visit the HMS LINCS Database."],
+    "description": ["The density- and context-dependent sensitivities of 6 breast cancer cell lines plated at 6 different cell densities were assayed by the HMS LINCS Center by measuring cell counts using imaging 72 hours after treatment with each of 12 small molecule inhibitors across a 9-point dose range. For further information about the assay and reagents and to download this dataset \\(HMS LINCS Dataset [#20258](http://lincs.hms.harvard.edu/db/datasets/20258/)) or the cell count datasets from which the reported dose-response metrics were calculated \\(HMS LINCS Datasets [#20256](http://lincs.hms.harvard.edu/db/datasets/20256/) and [#20257](http://lincs.hms.harvard.edu/db/datasets/20257/)), please visit the HMS LINCS Database."],
     "filterColumns":{},
-    "renameColumns":{"Cell_Name": "Cell_Line", "Small_Mol_Name": "Agent", "Seeding_Density": "Density"},
-    "groupableColumns":["Agent","Density","Replicate","Cell_Line"],
+    "renameColumns":{"Cell_Name": "Cell_Line", "Small_Mol_Name": "Small_Molecule", "Seeding_Density": "Density"},
+    "groupableColumns":["Small_Molecule","Density","Replicate","Cell_Line"],
     "doseresponse":{
        "xmin":["0"],"xmax":["0"],
        "defaultChoicevar":["Cell_Line"],
-       "defaultGroupingVars":["Agent","Density"],
+       "defaultGroupingVars":["Small_Molecule","Density"],
        "EC50":["GEC50"],
        "Einf":["GRinf"],
        "HillSlope":["GR_Hill_Coeff"],
@@ -20,7 +20,7 @@
     },
      "scatterplot":{
        "defaultChoicevar":["Cell_Line"],
-       "defaultGroupingVars":["Agent","Density"],
+       "defaultGroupingVars":["Small_Molecule","Density"],
        "GR50":["GR50"],
        "GRmax":["GRmax"],
        "GRinf":["GRinf"],

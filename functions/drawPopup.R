@@ -19,7 +19,7 @@ drawPopup <- function(curve_plot, values, example) {
       }
       curve_data = cbind(curve_data, GR)
       curve_data = as.data.frame(curve_data)
-      exper = paste(curve_plot$`Agent`[row], curve_plot$`Density`[row], curve_plot$`Replicate`[row], curve_plot$`Cell_Line`[row], sep = ' ')
+      exper = paste(curve_plot$`Small_Molecule`[row], curve_plot$`Density`[row], curve_plot$`Replicate`[row], curve_plot$`Cell_Line`[row], sep = ' ')
     } else if(values$config$datafile == 'www/20170303_Heiser_for_GRB.tsv') {
       EC50 = curve_plot$`GEC50`[row]
       GRinf = curve_plot$GRinf[row]
