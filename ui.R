@@ -6,41 +6,12 @@ library(ggplot2)
 library(shinyLi)
 library(jsonlite)
 
-js.extra <- '
-$(document).ready(function() {
-
-  // Wait until the server has updated the dataSet radio buttons with the
-  // actual list of datasets.
-  window.observer = new MutationObserver(function() {
-
-    // Stop observing so we only run this setup code once.
-    observer.disconnect();
-
-    // Set a change handler on the radio buttons so that changing the selected
-    // dataset automatically loads it (i.e. remove the need to click the
-    // Browse button). There is probably a proper Shiny way to do this but I
-    // think it would require some heavy refactoring in server.R.
-    $("input:radio[name=dataSet]").change(function() {
-      $("#browseDataset").trigger("click");
-    });
-
-    // Hide the button since the user will not need to click it anymore,
-    // and click it to load the default dataset.
-    $("#browseDataset").hide().trigger("click");
-
-  });
-  var options = {childList: true, subtree: true};
-  observer.observe(document.getElementById("dataSet"), options);
-});
-'
-
 shinyUI(
     fluidPage(
         # adding head section to html with links to CSS files
         tags$head(tags$link(href="css/ilincs.css",rel="stylesheet"),
                   tags$link(href="css/grbrowser.css",rel="stylesheet"),
-                  tags$link(href="css/AboutGRMetrics.css",rel="stylesheet"),
-                  tags$script(js.extra)),
+                  tags$link(href="css/AboutGRMetrics.css",rel="stylesheet")),
         # displaying header
         includeHTML("www/html/nav.html"),
         useShinyjs(),
@@ -52,8 +23,7 @@ shinyUI(
             class="leftColWidth",
             radioButtons(
                 'dataSet', 'Select Dataset to Browse', choices = c('')
-            ),
-            actionButton("browseDataset", "Browse")
+            )
         ),
         # Main column
         column(

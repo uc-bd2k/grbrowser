@@ -15,8 +15,34 @@ source('functions/extractData.R', local = T)
 source('functions/update_browse_selector.R')
 source('functions/parseLabel.R')
 
-
 shinyServer(function(input,output,session) {
+  update_browse_selector(session,c())
+  
+  observe({
+    query <- parseQueryString(session$clientData$url_search)
+    # Add underscores to dataset names for url
+    
+    URLnames = gsub(" ", "_", (names(dataset_choices)))
+    print('URLnames')
+    print(URLnames)
+    if(length(query) > 0) {
+      if (!is.null(query[['dataset']]) & query[['dataset']] %in% URLnames) {
+        # Take out underscores from dataset name in URL
+        URLchoice = gsub("_", " ", query[['dataset']])
+        print('URLchoice')
+        print(URLchoice)
+        updateRadioButtons(session, "dataSet",
+                           choices = dataset_choices,
+                           selected = URLchoice
+        )
+      }
+    }
+  })
+  
+  observeEvent(input$dataSet, {
+    print('dataSet')
+    print(input$dataSet)
+  })
   
   boxplot_data_global = NULL
   #=========== plotly boxplots ===========================
@@ -186,8 +212,6 @@ shinyServer(function(input,output,session) {
   
   values <- reactiveValues(config=c(),data=c(),showtabs=0)
 
-  update_browse_selector(session,c())
-  
   drg_demo_data <<- read.table("www/averaged_seeding1250_example_fixed.tsv", sep="\t", header=TRUE, check.names=FALSE, fill=TRUE)
   output$drg_demo <- renderLiDoseResponseGrid(
     input="",
@@ -210,13 +234,11 @@ shinyServer(function(input,output,session) {
     toggle(condition = values$showtabs, selector = "#tabs li a[data-value=tab-gr]")
   })
   
-  observeEvent(input$browseDataset, {
+  observeEvent(input$dataSet, {
     if (!is.null(input$dataSet) && input$dataSet != "") {
-
       inFile <- input$dataSet
       
-      if (is.null(inFile))
-        return(NULL)
+      if (is.null(inFile)) {return(NULL)}
       
       cat('file ', inFile, ' received\n')
       json_data <- readLines(paste0("json/", inFile))
@@ -389,7 +411,7 @@ observeEvent(input$pick_parameter, {
 
 #=========== update select boxes for boxplot ============
 
-observeEvent(input$browseDataset, {
+observeEvent(input$dataSet, {
   updateSelectInput(
     session, 'pick_box_x',
     choices = values$config$groupableColumns
@@ -400,7 +422,7 @@ observeEvent(input$browseDataset, {
   )
 })
 
-observeEvent(c(input$browseDataset, input$pick_box_x, input$tabs), {
+observeEvent(c(input$dataSet, input$pick_box_x, input$tabs), {
   if(!is.null(input$pick_box_x)) {
     picks = sort(unique(full_data[[input$pick_box_x]]))
     updateSelectizeInput(
@@ -465,7 +487,7 @@ observeEvent(c(input$box_scatter, input$pick_box_x, input$pick_box_factors), {
 
 #===== update select boxes for scatterplot ==========
 
-observeEvent(input$browseDataset, {
+observeEvent(input$dataSet, {
   updateSelectInput(
     session, 'pick_var',
     choices = values$config$groupableColumns
@@ -490,7 +512,7 @@ observeEvent(input$pick_var, {
 
 #===== Boxplot drawing =========
 
-observeEvent(input$browseDataset, {
+observeEvent(input$dataSet, {
   output$boxplot <- renderPlotly({
     #try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
     box = redrawPlotlyBox(input, values)
@@ -556,7 +578,7 @@ observeEvent(c(input$factorA, input$factorB, input$pick_box_y), {
 
 #==== Clear scatterplot on "browse" =========
 
-observeEvent(input$browseDataset, {
+observeEvent(input$dataSet, {
   output$plotlyScatter1 <- renderPlotly({
     parameter_choice = input$pick_parameter
     if(parameter_choice == 'GR50') {
