@@ -23,12 +23,16 @@ shinyUI(
             class="leftColWidth",
             radioButtons(
                 'dataSet', 'Select Dataset to Browse', choices = c('')
-            )
-        ),
+            ),
+            actionButton("datasetURL", "Get Bookmark", icon = shiny::icon("link", lib = "glyphicon"))
+            ),
         # Main column
         column(
             10,
             uiOutput("datasetInfo"),
+            bsModal("URLpopup", "Link to Dataset", "datasetURL", size = "large",
+                    textInput("bookmark_input", label= NULL, value = "", width = '100%')
+                    ),
             tabsetPanel(
                 id = "tabs",
                 # Dose-response grid tab
