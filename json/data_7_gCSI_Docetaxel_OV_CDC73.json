@@ -1,0 +1,24 @@
+{
+    "datafile":["www/gCSI_Docetaxel_OV_CDC73.tsv"],
+    "title": ["Example 2"],
+    "description": ["test"],
+    "filterColumns":{},
+    "renameColumns":{"Cell line": "Cell_Line", "Drug": "Perturbagen", "GR50 (uM)": "GR50", "IC50 (uM)": "IC50"},
+    "groupableColumns":["Perturbagen","Cell_Line", "CDC73_del"],
+    "doseresponse":{
+       "xmin":["0"],"xmax":["0"],
+       "defaultChoicevar":["Cell_Line"],
+       "defaultGroupingVars":["Perturbagen"],
+       "toggle":["1"],
+       "hideselector":["0"]
+    },
+     "scatterplot":{
+       "defaultChoicevar":["Cell_Line"],
+       "defaultGroupingVars":["Perturbagen"],
+       "GR50":["GR50"],
+       "GRmax":["GRmax"],
+       "IC50":["IC50"],
+       "Emax":["Emax"],
+       "hideselector":["0"]
+     }
+}

@@ -4,7 +4,7 @@ extractData <- function(input, output, values, choiceVar, groupingVars) {
   data1 <- values$data
   data1[[choiceVar]] <- values$data[[choiceVar]]
   data1[[paste(groupingVars,collapse = '_')]] <- do.call(paste, c(as.data.frame(values$data[groupingVars], stringsAsFactors=FALSE),sep="_"))
-  if(input$dataSet != "data_5_Lapatinib_BRCA_PTEN.json") {
+  if(!input$dataSet %in% c("data_5_Genentech_Cell_Line_Screening_Initiative_(gCSI).json","data_6_gCSI_Lapatinib_BRCA_PTEN.json","data_7_gCSI_Docetaxel_OV_CDC73.json")) {
     data1['EC50'] <- values$data[values$config$doseresponse$EC50]
     data1['Einf'] <- values$data[values$config$doseresponse$Einf]
     data1['GRinf'] <- values$data[values$config$scatterplot$GRinf]
@@ -15,7 +15,7 @@ extractData <- function(input, output, values, choiceVar, groupingVars) {
   data1['GR50'] <- values$data[values$config$scatterplot$GR50]
   data1['log10[GR50]'] <- lapply(data1['GR50'], log10)
   data1['GRmax'] <- values$data[values$config$scatterplot$GRmax]
-  if(input$dataSet == "data_5_Lapatinib_BRCA_PTEN.json") {
+  if(input$dataSet %in% c("data_5_Genentech_Cell_Line_Screening_Initiative_(gCSI).json","data_6_gCSI_Lapatinib_BRCA_PTEN.json","data_7_gCSI_Docetaxel_OV_CDC73.json")) {
     data1['log10[IC50]'] <- lapply(data1['IC50'], log10)
     data1['Emax'] <- values$data[values$config$scatterplot$Emax]
     }

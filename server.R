@@ -67,7 +67,7 @@ shinyServer(function(input,output,session) {
     if(parameter_choice == 'Hill') {
       parameter_choice = 'log2[HillSlope]'
     }
-    if(input$dataSet == "data_5_Lapatinib_BRCA_PTEN.json") {
+    if(input$dataSet %in% c("data_5_Genentech_Cell_Line_Screening_Initiative_(gCSI).json","data_6_gCSI_Lapatinib_BRCA_PTEN.json","data_7_gCSI_Docetaxel_OV_CDC73.json")) {
       if(parameter_choice == 'IC50') {
         parameter_choice = 'log10[IC50]'
       }
