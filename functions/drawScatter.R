@@ -2,6 +2,7 @@ df_full = NULL
 
 drawScatter <- function (input, values)
 {
+  print("drawScatter function start")
   xaxis = full_data[get(input$pick_var, envir = as.environment(full_data)) == input$x_scatter,]
   GR1 = unique(xaxis[[input$pick_var]])
   
@@ -35,7 +36,8 @@ drawScatter <- function (input, values)
     print(1.3)
     df_full <<- rbind(df, df_full)
     print(names(df_full))
-    
+    print("df_full")
+    print(df_full)
   }
   df_full$cross.x <<- factor(df_full$cross.x)
   df_sub <<- df_full
@@ -77,7 +79,8 @@ drawScatter <- function (input, values)
   print(length(x_var))
   print(length(y_var))
   df_sub <<- df_sub[test_finite,]
-
+  print('df_sub')
+  print(df_sub)
   p = ggplot(data = df_sub, aes(x = x_var, y = y_var, colour = cross.x, text = merge_text)) + geom_point(size=2)+ geom_abline(slope = 1, intercept = 0, size = .25) + scale_x_continuous(limits = c(all_min, all_max)) + scale_y_continuous(limits = c(all_min, all_max)) + coord_fixed()
   if(parameter_choice == 'log10[GR50]') {
     p = p + xlab("log10(GR50)") + ylab("log10(GR50)") + ggtitle("GR50 Scatterplot (log10)") + labs(colour = "")
@@ -87,5 +90,6 @@ drawScatter <- function (input, values)
     p = p + xlab(parameter_choice) + ylab(parameter_choice) + ggtitle(paste(parameter_choice, "Scatterplot")) + labs(colour = "")
   }
   plotScatter_box <<- p
+  print("drawScatter function end")
   return(p)
 }

@@ -1,4 +1,5 @@
 update_browse_selector <- function(session, prev_selection) {
+  print("update_browse_selector function start")
   datasets <- list.files(path = "json", pattern="*.json")
   dataset_choices <<- datasets
   
@@ -19,4 +20,5 @@ update_browse_selector <- function(session, prev_selection) {
                      choices=dataset_choices,
                      selected=prev_selection
   )
+  print("update_browse_selector function end")
 }

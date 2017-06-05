@@ -1,4 +1,5 @@
 parseLabel = function(input, values, full_data) {
+  print("parseLabel function start")
   graphParams <- input$'dose-response-grid-main'
   print('graphparams_input')
   print(graphParams)
@@ -108,6 +109,7 @@ parseLabel = function(input, values, full_data) {
     } else {
       q = ggplot(full_data) + geom_blank()
     }
+    print("parseLabel function end")
     return(q) 
   }
 }

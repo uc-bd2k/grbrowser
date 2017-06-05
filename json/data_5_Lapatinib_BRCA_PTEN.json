@@ -1,0 +1,24 @@
+{
+    "datafile":["www/gCSI_Lapatinib_BRCA_PTEN.tsv"],
+    "title": ["Example 1"],
+    "description": ["test"],
+    "filterColumns":{},
+    "renameColumns":{"Cell line": "Cell_Line", "Drug": "Perturbagen", "GR50 (uM)": "GR50", "IC50 (uM)": "IC50"},
+    "groupableColumns":["Perturbagen","Cell_Line", "PTEN_mut"],
+    "doseresponse":{
+       "xmin":["0"],"xmax":["0"],
+       "defaultChoicevar":["Cell_Line"],
+       "defaultGroupingVars":["Perturbagen"],
+       "toggle":["1"],
+       "hideselector":["0"]
+    },
+     "scatterplot":{
+       "defaultChoicevar":["Cell_Line"],
+       "defaultGroupingVars":["Perturbagen"],
+       "GR50":["GR50"],
+       "GRmax":["GRmax"],
+       "IC50":["IC50"],
+       "Emax":["Emax"],
+       "hideselector":["0"]
+     }
+}

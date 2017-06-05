@@ -10,7 +10,6 @@ groupingColumns = NULL
 
 source('functions/drawScatter.R', local = T)
 source('functions/drawPopup.R')
-source('functions/drawExamplePopup.R')
 source('functions/extractData.R', local = T)
 source('functions/update_browse_selector.R')
 source('functions/parseLabel.R')
@@ -67,6 +66,11 @@ shinyServer(function(input,output,session) {
     }
     if(parameter_choice == 'Hill') {
       parameter_choice = 'log2[HillSlope]'
+    }
+    if(input$dataSet == "data_5_Lapatinib_BRCA_PTEN.json") {
+      if(parameter_choice == 'IC50') {
+        parameter_choice = 'log10[IC50]'
+      }
     }
     boxplot_data = full_data[full_data[[ input$pick_box_x ]] %in% input$pick_box_factors,]
     boxplot_data = boxplot_data[is.finite(boxplot_data[[parameter_choice]]),]
@@ -222,16 +226,6 @@ shinyServer(function(input,output,session) {
   }
   
   values <- reactiveValues(config=c(),data=c(),showtabs=0)
-
-  drg_demo_data <<- read.table("www/averaged_seeding1250_example_fixed.tsv", sep="\t", header=TRUE, check.names=FALSE, fill=TRUE)
-  output$drg_demo <- renderLiDoseResponseGrid(
-    input="",
-    xmin = -4,
-    xmax = 2,
-    factors=c("DrugName","CellLine"),
-    toggle=1,
-    drg_demo_data
-  )
   
   output$input_table <- DT::renderDataTable(DT::datatable({
     x<-values$data
@@ -280,7 +274,9 @@ shinyServer(function(input,output,session) {
       full_data <<- extractData(input, output, values,
                                            values$config$doseresponse$defaultChoicevar,
                                            values$config$doseresponse$defaultGroupingVars)
-      
+      ####### for testing purposes
+        test_full_data <<- full_data
+      #######
       output$'dose-response-grid-main' <- renderLiDoseResponseGrid(
           input="",
           xmin = -4,
@@ -291,24 +287,6 @@ shinyServer(function(input,output,session) {
         )
       groupingColumns <<- values$config$groupableColumns
       values$showtabs=1
-    }
-  })
- 
-#======== Example dose-response grid ========= 
-  observeEvent(input$drg_demo, {
-    if(input$drg_demo != '' && str_count(input$drg_demo, '=') == 1) {
-      q = drawExamplePopup(input, values)
-      output$graphPopupPlotDemo <- renderPlotly({
-        #try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
-        ggplotly(q) %>%
-        layout(
-          xaxis = list(range = c(-4,2),
-                       tickmode = 'linear',
-                       tick0 = -5,
-                       dtick = 1)
-        )
-       })
-      toggleModal(session,"graphPopupDemo")
     }
   })
   
@@ -382,7 +360,7 @@ print(1.1)
              b = 60, 
              l = 100)
            )
-print(1.22)    
+print(1.22)
   })
 })
 
@@ -544,7 +522,8 @@ output$plot.ui2 <- renderUI({
 output$scatter <- renderUI({
   if(input$box_scatter == "Scatter plot") {
     fluidRow(
-      selectInput('pick_parameter', 'Select parameter', choices = c('GR50', 'GRmax', 'GRinf', 'Hill', 'GR_AOC')),
+      ####### Change selectize options to specified in json
+      selectInput('pick_parameter', 'Select parameter', choices = c('GR50', 'GRmax', 'GRinf', 'Hill', 'GR_AOC', 'IC50')),
       selectInput('pick_var', 'Select variable', choices = values$config$groupableColumns),
       selectInput('x_scatter', 'Select x-axis value', choices = unique(full_data[[input$pick_box_x]])),
       selectizeInput('y_scatter', 'Select y-axis value', choices = unique(full_data[[input$pick_box_x]])),
@@ -553,18 +532,22 @@ output$scatter <- renderUI({
     )
   } else {
     fluidRow(
-      selectInput('pick_box_y', 'Select parameter', choices = c('GR50', 'GRmax', 'GRinf', 'Hill', 'GR_AOC')),
+      ###### Change "pick_box_y" metrics to inherit from json for each dataset?
+      ###### Add IC (and GI?) metrics to pick_box_y
+      selectInput('pick_box_y', 'Select parameter', choices = c('GR50', 'GRmax', 'GRinf', 'Hill', 'GR_AOC', 'IC50')),
       selectInput('pick_box_x', 'Select grouping variable', choices = values$config$groupableColumns),
       selectInput('pick_box_point_color', 'Select additional point coloring', choices = values$config$groupableColumns),
       selectizeInput('pick_box_factors', 'Select factors of grouping variable', choices = c(), multiple = T),
-      selectizeInput('factorA', 'Choose factors with which to perform a one-sided Wilcoxon rank-sum test', choices = c(), multiple = T),
+      selectizeInput('factorA', 'Choose factors with which to perform a Wilcoxon rank-sum test', choices = c(), multiple = T),
       selectizeInput('factorB', '', choices = c(), multiple = T),
+      radioButtons('wilcox_method', label = "",choices = c("One-sided", "Two-sided"), selected = "Two-sided", inline = T),
       textOutput("wilcox")
     )
   }
 })
 
-observeEvent(c(input$factorA, input$factorB, input$pick_box_y), {
+observeEvent(c(input$factorA, input$factorB, input$pick_box_y,
+               input$wilcox_method), {
   wil_data = full_data
   if(!is.null(input$factorA) & !is.null(input$factorB)) {
     print(input$pick_box_x)
@@ -574,10 +557,14 @@ observeEvent(c(input$factorA, input$factorB, input$pick_box_y), {
     wil_dataB = wil_data[rowsB,input$pick_box_y]
     print(head(wil_dataA))
     print(head(wil_dataB))
-    wil = wilcox.test(x = wil_dataA, y = wil_dataB, alternative = "less")
-    values$wilcox = prettyNum(wil$p.value, digits = 2)
+    wil_less = wilcox.test(x = wil_dataA, y = wil_dataB, alternative = "less")
+    wil_greater = wilcox.test(x = wil_dataA, y = wil_dataB, alternative = "greater")
+    wil_two_sided = wilcox.test(x = wil_dataA, y = wil_dataB, alternative = "two.sided")$p.value
+    wil_one_sided = min(wil_less$p.value,wil_greater$p.value)
+    wil_pval = ifelse(input$wilcox_method == "One-sided", wil_one_sided, wil_two_sided)
+    values$wilcox = prettyNum(wil_pval, digits = 2)
     output$wilcox = renderText({
-      paste("P-value:", prettyNum(wil$p.value, digits = 2))
+      paste("P-value:", prettyNum(wil_pval, digits = 2))
     })
   } else {
     output$wilcox = renderText({
