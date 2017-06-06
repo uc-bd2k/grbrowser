@@ -4,7 +4,7 @@
     "description": ["test"],
     "filterColumns":{},
     "renameColumns":{"Cell line": "Cell_Line", "Drug": "Perturbagen", "GR50 (uM)": "GR50", "IC50 (uM)": "IC50"},
-    "groupableColumns":["Perturbagen","Cell_Line", "CDC73_del"],
+    "groupableColumns":["Perturbagen","Cell_Line", "CDC73_del", "BCL2_del"],
     "doseresponse":{
        "xmin":["0"],"xmax":["0"],
        "defaultChoicevar":["Cell_Line"],

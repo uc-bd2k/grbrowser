@@ -81,7 +81,22 @@ shinyUI(
                     fluidRow(
                         column(2, uiOutput("scatter")),
                         column(10, uiOutput("plot.ui2"))
-                    )
+                    ),
+                    fluidRow(
+                      column(2,
+                             textInput('plot_title', 'Plot title')),
+                      column(2,
+                             sliderInput('axis_label_size', 'X-axis Label Size', min = 1, max = 30, step = 1, value = 11)),
+                      column(2,
+                             sliderInput('axis_title_size', 'Y-Axis Title Size', min = 1, max = 30, step = 1, value = 16)),
+                      column(2,
+                             sliderInput('plot_title_size', 'Main Title Size', min = 1, max = 50, step = 1, value = 20)),
+                      column(2,
+                             sliderInput('bottom_margin', 'Bottom Margin', min = 1, max = 200, step = 5, value = 60)),
+                      column(2, 
+                             sliderInput('label_rotate', 'X-axis label rotation', min = -90, max = 90, step = 5, value = -45))
+                      )
+                    
                 ),
                 # Data Tables tab
                 tabPanel(

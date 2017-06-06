@@ -95,6 +95,14 @@ shinyServer(function(input,output,session) {
       # modify x and y names for hovertext
       #test_gg <<- plotly_build(p)
       #test_gg<<- q
+      p = p + theme(
+        axis.text = element_text(size = input$axis_label_size),
+        axis.title = element_text(size = input$axis_title_size),
+        plot.title = element_text(size = input$plot_title_size),
+        plot.margin = unit(c(5.5, 5.5, input$bottom_margin, 5.5), "points"),
+        #top, right, bottom, left
+        axis.text.x = element_text(angle = input$label_rotate, vjust = 1, hjust=1)
+      ) + ggtitle(input$plot_title)
       p1 = plotly_build(p)
       #test_box <<- p1
       # Get y range:
@@ -108,7 +116,7 @@ shinyServer(function(input,output,session) {
       total_y_range = top_y - bottom_y
       
       q <- ggplot(boxplot_data, aes(x = x_factor, y = y_variable, ymin = bottom_y, ymax = top_y))
-      q = q + geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) + geom_jitter(width = 0.5, aes(colour = point_color)) + xlab('') + ylab(parameter_choice) + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) # + theme_grey(base_size = 14) 
+      q = q + geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) + geom_jitter(width = 0.5, aes(colour = point_color)) + xlab('') + ylab(parameter_choice) #+ theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
       q$labels$colour = input$pick_box_point_color
       
       if(!is.null(values$wilcox)) {
@@ -136,13 +144,13 @@ shinyServer(function(input,output,session) {
         lenB = length(input$factorB)
         
         q <- ggplot(boxplot_data, aes(x = x_factor, y = y_variable, ymin = bottom_y, ymax = top_y))
-        q = q + geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) + geom_jitter(width = 0.5, aes(colour = point_color)) + xlab('') + ylab(parameter_choice) + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) # + theme_grey(base_size = 14) 
+        q = q + geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) + geom_jitter(width = 0.5, aes(colour = point_color)) + xlab('') + ylab(parameter_choice)# + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) # + theme_grey(base_size = 14) 
         q$labels$colour = input$pick_box_point_color
         
         if(lenA == 1 & lenB == 1) {
           p = p + annotate("text", x = 1.5, y = lh + bump/2, label = paste("p =",values$wilcox)) + geom_segment(x = 1, y = lh, xend = 2, yend = lh) + geom_segment(x = 1, y = ll, xend = 1, yend = lh) + geom_segment(x = 2, y = ll, xend = 2, yend = lh)
           
-          q = q + annotate("text", x = 1.5, y = lh + bump/2, label = paste("p =",values$wilcox)) + geom_segment(x = 1, y = lh, xend = 2, yend = lh) + geom_segment(x = 1, y = ll, xend = 1, yend = lh) + geom_segment(x = 2, y = ll, xend = 2, yend = lh) + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) # + theme_grey(base_size = 14) 
+          q = q + annotate("text", x = 1.5, y = lh + bump/2, label = paste("p =",values$wilcox)) + geom_segment(x = 1, y = lh, xend = 2, yend = lh) + geom_segment(x = 1, y = ll, xend = 1, yend = lh) + geom_segment(x = 2, y = ll, xend = 2, yend = lh)# + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) # + theme_grey(base_size = 14) 
           
         } else if(lenA > 1 & lenB == 1) {
           p = p + annotate("text", x = ((lenA + 1) + ((lenA+1)/2))/2, y = lh + 2*bump, label = paste("p =",values$wilcox)) +
@@ -151,7 +159,7 @@ shinyServer(function(input,output,session) {
           
           q = q + annotate("text", x = ((lenA + 1) + ((lenA+1)/2))/2, y = lh + 2*bump, label = paste("p =",values$wilcox)) +
             geom_segment(x = 1, y = lh, xend = lenA, yend = lh) + geom_segment(x = 1, y = ll, xend = 1, yend = lh) + geom_segment(x = lenA, y = ll, xend = lenA, yend = lh) +
-            geom_segment(x = (lenA+1)/2, y = lh + bump, xend = lenA + 1, yend = lh + bump) + geom_segment(x = (lenA+1)/2, y = lh, xend = (lenA+1)/2, yend = lh + bump) + geom_segment(x = lenA+1, y = ll, xend = lenA+1, yend = lh + bump) + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) # + theme_grey(base_size = 14) 
+            geom_segment(x = (lenA+1)/2, y = lh + bump, xend = lenA + 1, yend = lh + bump) + geom_segment(x = (lenA+1)/2, y = lh, xend = (lenA+1)/2, yend = lh + bump) + geom_segment(x = lenA+1, y = ll, xend = lenA+1, yend = lh + bump)# + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) # + theme_grey(base_size = 14) 
         } else if(lenA == 1 & lenB > 1) {
           p = p + annotate("text", x = 1.25 + .25*lenB, y = lh + 2*bump, label = paste("p =",values$wilcox)) + 
             geom_segment(x = 1, y = lh+bump, xend = .5*lenB + 1.5, yend = lh+bump) + geom_segment(x = 1, y = ll, xend = 1, yend = lh+bump) + geom_segment(x = 1.5+.5*lenB, y = lh, xend = 1.5+.5*lenB, yend = lh+bump) +
@@ -159,7 +167,7 @@ shinyServer(function(input,output,session) {
           
           q = q + annotate("text", x = 1.25 + .25*lenB, y = lh + 2*bump, label = paste("p =",values$wilcox)) + 
             geom_segment(x = 1, y = lh+bump, xend = .5*lenB + 1.5, yend = lh+bump) + geom_segment(x = 1, y = ll, xend = 1, yend = lh+bump) + geom_segment(x = 1.5+.5*lenB, y = lh, xend = 1.5+.5*lenB, yend = lh+bump) +
-            geom_segment(x = 2, y = lh, xend = lenB + 1, yend = lh) + geom_segment(x = 2, y = ll, xend = 2, yend = lh) + geom_segment(x = lenB+1, y = ll, xend = lenB+1, yend = lh) + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) # + theme_grey(base_size = 14) 
+            geom_segment(x = 2, y = lh, xend = lenB + 1, yend = lh) + geom_segment(x = 2, y = ll, xend = 2, yend = lh) + geom_segment(x = lenB+1, y = ll, xend = lenB+1, yend = lh)# + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) # + theme_grey(base_size = 14) 
         } else if(lenA > 1 & lenB > 1) {
           p = p + annotate("text", x = .25*(lenB-1)+.75*(lenA+1), y = lh + 2*bump, label = paste("p =",values$wilcox)) + 
             geom_segment(x = 1, y = lh, xend = lenA, yend = lh) + geom_segment(x = 1, y = ll, xend = 1, yend = lh) + geom_segment(x = lenA, y = ll, xend = lenA, yend = lh) +
@@ -169,7 +177,7 @@ shinyServer(function(input,output,session) {
           q = q + annotate("text", x = .25*(lenB-1)+.75*(lenA+1), y = lh + 2*bump, label = paste("p =",values$wilcox)) + 
             geom_segment(x = 1, y = lh, xend = lenA, yend = lh) + geom_segment(x = 1, y = ll, xend = 1, yend = lh) + geom_segment(x = lenA, y = ll, xend = lenA, yend = lh) +
             geom_segment(x = lenA+1, y = lh, xend = lenA+lenB, yend = lh) + geom_segment(x = lenA+1, y = ll, xend = lenA+1, yend = lh) + geom_segment(x = lenA+lenB, y = ll, xend = lenA+lenB, yend = lh) +
-            geom_segment(x = (lenA+1)/2, y = lh+bump, xend = (lenA+1)+((lenB-1)/2), yend = lh+bump) + geom_segment(x = (lenA+1)/2, y = lh, xend = (lenA+1)/2, yend = lh+bump) + geom_segment(x = (lenA+1)+((lenB-1)/2), y = lh, xend = (lenA+1)+((lenB-1)/2), yend = lh+bump) + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) # + theme_grey(base_size = 14) 
+            geom_segment(x = (lenA+1)/2, y = lh+bump, xend = (lenA+1)+((lenB-1)/2), yend = lh+bump) + geom_segment(x = (lenA+1)/2, y = lh, xend = (lenA+1)/2, yend = lh+bump) + geom_segment(x = (lenA+1)+((lenB-1)/2), y = lh, xend = (lenA+1)+((lenB-1)/2), yend = lh+bump)# + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) # + theme_grey(base_size = 14) 
         }
         
         p = plotly_build(p)
@@ -192,33 +200,33 @@ shinyServer(function(input,output,session) {
             p$x$data[[i]]$text = gsub('y_variable', parameter_choice, p$x$data[[i]]$text)
           }
         }
-        # p$layout$xaxis$tickangle = -90
-        # p$layout$margin$b = 200
-        bottom_margin = max(nchar(p$x$layout$xaxis$ticktext), na.rm = TRUE)
-        left = nchar(p$x$layout$xaxis$ticktext[1])
-        p$x$layout$xaxis$tickangle = -45
-        p$x$layout$margin$b = 15 + 6*bottom_margin
-        if(left > 10) {
-          left_margin = p$x$layout$margin$l + (left-10)*6
-          p$x$layout$margin$l = left_margin
-        }
+      #   # p$layout$xaxis$tickangle = -90
+      #   # p$layout$margin$b = 200
+      #   bottom_margin = max(nchar(p$x$layout$xaxis$ticktext), na.rm = TRUE)
+      #   left = nchar(p$x$layout$xaxis$ticktext[1])
+      #   p$x$layout$xaxis$tickangle = -45
+      #   p$x$layout$margin$b = 15 + 6*bottom_margin
+      #   if(left > 10) {
+      #     left_margin = p$x$layout$margin$l + (left-10)*6
+      #     p$x$layout$margin$l = left_margin
+      #   }
       } else {
-        for(i in 1:length(p$data)){
-          if(!is.null(p$data[[i]]$text)) {
-            p$data[[i]]$text = gsub('x_factor', input$pick_box_x, p$data[[i]]$text)
-            p$data[[i]]$text = gsub('y_variable', parameter_choice, p$data[[i]]$text)
-          }
-        }
-        # p$layout$xaxis$tickangle = -90
-        # p$layout$margin$b = 200
-        bottom_margin = max(nchar(p$layout$xaxis$ticktext), na.rm = TRUE)
-        left = nchar(p$layout$xaxis$ticktext[1])
-        p$layout$xaxis$tickangle = -45
-        p$layout$margin$b = 15 + 6*bottom_margin
-        if(left > 10) {
-          left_margin = p$layout$margin$l + (left-10)*6
-          p$layout$margin$l = left_margin
-        }
+      #   for(i in 1:length(p$data)){
+      #     if(!is.null(p$data[[i]]$text)) {
+      #       p$data[[i]]$text = gsub('x_factor', input$pick_box_x, p$data[[i]]$text)
+      #       p$data[[i]]$text = gsub('y_variable', parameter_choice, p$data[[i]]$text)
+      #     }
+      #   }
+      #   # p$layout$xaxis$tickangle = -90
+      #   # p$layout$margin$b = 200
+      #   bottom_margin = max(nchar(p$layout$xaxis$ticktext), na.rm = TRUE)
+      #   left = nchar(p$layout$xaxis$ticktext[1])
+      #   p$layout$xaxis$tickangle = -45
+      #   p$layout$margin$b = 15 + 6*bottom_margin
+      #   if(left > 10) {
+      #     left_margin = p$layout$margin$l + (left-10)*6
+      #     p$layout$margin$l = left_margin
+      #   }
       }
       test_box <<- p
       return(p)
@@ -534,13 +542,13 @@ output$scatter <- renderUI({
     fluidRow(
       ###### Change "pick_box_y" metrics to inherit from json for each dataset?
       ###### Add IC (and GI?) metrics to pick_box_y
-      selectInput('pick_box_y', 'Select parameter', choices = c('GR50', 'GRmax', 'GRinf', 'Hill', 'GR_AOC', 'IC50')),
+      selectInput('pick_box_y', 'Select parameter', choices = c('GR50', 'GRmax', 'GRinf', 'Hill', 'GR_AOC', 'IC50', 'Emax')),
       selectInput('pick_box_x', 'Select grouping variable', choices = values$config$groupableColumns),
       selectInput('pick_box_point_color', 'Select additional point coloring', choices = values$config$groupableColumns),
       selectizeInput('pick_box_factors', 'Select factors of grouping variable', choices = c(), multiple = T),
       selectizeInput('factorA', 'Choose factors with which to perform a Wilcoxon rank-sum test', choices = c(), multiple = T),
       selectizeInput('factorB', '', choices = c(), multiple = T),
-      radioButtons('wilcox_method', label = "",choices = c("One-sided", "Two-sided"), selected = "Two-sided", inline = T),
+      radioButtons('wilcox_method', label = "",choices = c("One-sided", "Two-sided"), selected = "Two-sided", inline = F),
       textOutput("wilcox")
     )
   }
