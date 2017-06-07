@@ -261,7 +261,7 @@ shinyServer(function(input,output,session) {
       values$config <- fromJSON(json_data)
       
       output$datasetTitle <- renderUI(
-        tags$div(tags$h3(actionLink('dataset_title', values$config$title)))
+        tags$h3(actionLink('dataset_title', values$config$title))
       )
       
       output$datasetInfo <- renderUI(

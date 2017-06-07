@@ -16,8 +16,6 @@ shinyUI(
         # displaying header
         includeHTML("www/html/nav.html"),
         useShinyjs(),
-        titlePanel("Browse LINCS Dose-Response Datasets"),
-        hr(),
         # Side column
         column(
             2,
