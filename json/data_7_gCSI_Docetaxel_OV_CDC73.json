@@ -1,7 +1,7 @@
 {
     "datafile":["www/gCSI_Docetaxel_OV_CDC73.tsv"],
-    "title": ["Example 2"],
-    "description": ["test"],
+    "title": ["Genentech Cell Line Screening Initiative (gCSI)"],
+    "description": ["The Genentech Cell Line Screening Initiative (gCSI) [Haverty, P.M. 2016 Nature], a large-scale drug sensitivity dataset produced by the biotechnology company Genentech, presents the sensitivities of ~400 cell lines across 23 different tissue types to 16 anti-cancer drugs. Originally, this data was reported with traditional drug sensitivity metrics, but because doubling times of the cell lines were also reported, we were able to compute GR metrics. Both types of metrics are presented here, with IC50 and GR50 values capped at 31 M. We have also included calls for mutation or deletion of three cancer-related genes from the Cancer Cell Line Encyclopedia (CCLE). We use these mutation and deletion calls to show examples of false positive and false negative results caused by confounding issues with growth rates [reference figures here]. Here we have subsetted the data to only ovarian cancer cell lines treated with the microtubule inhibitor docetaxel. An example of a false positive result caused by the confounding of traditional dose-response metrics with growth rate is provided by deletion of CDC73 (a component of an RNA Polymerase II complex) in these cell lines. By IC50, CDC73 deletion seems to significantly desensitive cell lines to docetaxel. However, CDC73-deleted cell lines grew much more slowly than CDC73 expressers (57 vs. 35 h doubling time; p=0.03). The GR50 takes into account this difference in growth rate, and one can see that GR50 values are not significantly changed by CDC73 status."],
     "filterColumns":{},
     "renameColumns":{"Cell line": "Cell_Line", "Drug": "Perturbagen", "GR50 (uM)": "GR50", "IC50 (uM)": "IC50"},
     "groupableColumns":["Perturbagen","Cell_Line", "CDC73_del", "BCL2_del"],

@@ -1,6 +1,6 @@
 #downloadData { width:200px; margin-top: 10px; margin-bottom: 20px;}
 #input_table  {white-space: nowrap;  }
-#downloadScatter { margin-top: 20px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px}
+#downloadScatter { margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px}
 #scatterImageType { margin-top: 0px; margin-bottom: 20px; margin-left: 0px;}
 #plotBoxL2 { white-space: nowrap; margin-top: 25px; margin-left: 10px; margin-right: 0px}
 #scatter_height { width:50px; margin-top: 20px; margin-left: 20px; margin-right: 0px}

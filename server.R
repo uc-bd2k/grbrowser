@@ -95,14 +95,16 @@ shinyServer(function(input,output,session) {
       # modify x and y names for hovertext
       #test_gg <<- plotly_build(p)
       #test_gg<<- q
-      p = p + theme(
+      
+      p = p + eval(parse(text = input$theme_select)) + theme(
         axis.text = element_text(size = input$axis_label_size),
         axis.title = element_text(size = input$axis_title_size),
         plot.title = element_text(size = input$plot_title_size),
+        plot.subtitle = element_text(size = input$plot_subtitle_size),
         plot.margin = unit(c(5.5, 5.5, input$bottom_margin, 5.5), "points"),
         #top, right, bottom, left
         axis.text.x = element_text(angle = input$label_rotate, vjust = 1, hjust=1)
-      ) + ggtitle(input$plot_title)
+      ) + labs(title = input$plot_title)
       p1 = plotly_build(p)
       #test_box <<- p1
       # Get y range:
@@ -258,10 +260,12 @@ shinyServer(function(input,output,session) {
       
       values$config <- fromJSON(json_data)
       
+      output$datasetTitle <- renderUI(
+        tags$div(tags$h3(actionLink('dataset_title', values$config$title)))
+      )
+      
       output$datasetInfo <- renderUI(
-        tags$div(tags$h3(values$config$title),
-                 HTML(markdownToHTML(text=values$config$description,
-                                     options=c('fragment_only'))))
+        HTML(markdownToHTML(text=values$config$description, options=c('fragment_only')))
       )
 
       values$data <- read.table(values$config$datafile, sep="\t", header=TRUE, check.names=FALSE, fill=TRUE, stringsAsFactors = F)
@@ -319,7 +323,7 @@ shinyServer(function(input,output,session) {
 #========== Download button for scatterplot images =======
   output$downloadScatter = downloadHandler(
     filename = function() {
-      if(input$box_scatter == "Scatter plot") {
+      if(input$box_scatter_choice == "Scatter plot") {
         type = '_scatter'
       } else {
         type = '_box'
@@ -430,7 +434,7 @@ observeEvent(c(input$dataSet, input$pick_box_x, input$tabs), {
   }
 })
 
-observeEvent(input$box_scatter, {
+observeEvent(input$box_scatter_choice, {
   if(!is.null(input$pick_box_x)) {
     picks = sort(unique(full_data[[input$pick_box_x]]))
     updateSelectizeInput(
@@ -461,7 +465,7 @@ observeEvent(input$factorB, {
   )
 })
 
-observeEvent(c(input$box_scatter, input$pick_box_x, input$pick_box_factors), {
+observeEvent(c(input$box_scatter_choice, input$pick_box_x, input$pick_box_factors), {
   if(!is.null(input$pick_box_x)) {
     print(input$pick_box_factors)
     print(typeof(input$pick_box_factors))
@@ -509,7 +513,7 @@ observeEvent(input$pick_var, {
 
 #===== Boxplot drawing =========
 
-observeEvent(input$dataSet, {
+observeEvent(c(input$dataSet, input$plot_height), {
   output$boxplot <- renderPlotly({
     #try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
     box = redrawPlotlyBox(input, values)
@@ -519,16 +523,16 @@ observeEvent(input$dataSet, {
   })
 })
 
-output$plot.ui2 <- renderUI({
-  if(input$box_scatter == "Box plot") {
-    plotlyOutput('boxplot', height = input$scatter_height)
-  } else {
-    plotlyOutput("plotlyScatter1", height = input$scatter_height)
-  }
+output$grmetric_plot_ui <- renderUI({
+    if(input$box_scatter_choice == "Box plot") {
+      plotlyOutput('boxplot', height = input$plot_height)
+    } else {
+      plotlyOutput("plotlyScatter1", height = input$plot_height)
+    }
 })
 
 output$scatter <- renderUI({
-  if(input$box_scatter == "Scatter plot") {
+  if(input$box_scatter_choice == "Scatter plot") {
     fluidRow(
       ####### Change selectize options to specified in json
       selectInput('pick_parameter', 'Select parameter', choices = c('GR50', 'GRmax', 'GRinf', 'Hill', 'GR_AOC', 'IC50')),
@@ -546,10 +550,14 @@ output$scatter <- renderUI({
       selectInput('pick_box_x', 'Select grouping variable', choices = values$config$groupableColumns),
       selectInput('pick_box_point_color', 'Select additional point coloring', choices = values$config$groupableColumns),
       selectizeInput('pick_box_factors', 'Select factors of grouping variable', choices = c(), multiple = T),
-      selectizeInput('factorA', 'Choose factors with which to perform a Wilcoxon rank-sum test', choices = c(), multiple = T),
-      selectizeInput('factorB', '', choices = c(), multiple = T),
-      radioButtons('wilcox_method', label = "",choices = c("One-sided", "Two-sided"), selected = "Two-sided", inline = F),
-      textOutput("wilcox")
+      actionLink('wilcox_panel', 'Compare boxplots'),
+      conditionalPanel(condition = "input.wilcox_panel%2==1",
+                       selectizeInput('factorA', 'Wilcoxon rank-sum test', choices = c(), multiple = T),
+                       selectizeInput('factorB', '', choices = c(), multiple = T),
+                       radioButtons('wilcox_method', label = "",choices = c("One-sided", "Two-sided"), selected = "Two-sided", inline = F),
+                       textOutput("wilcox")
+      )
+      
     )
   }
 })
