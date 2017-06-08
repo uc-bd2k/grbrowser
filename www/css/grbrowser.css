@@ -7,14 +7,9 @@
 #clear { margin-top: 10px; margin-bottom: 10px;}
 #plot_scatter { margin-top: 10px; margin-bottom: 10px;}
 
-#datasetTitle h3 {
-    margin-top: 0;
-    padding-top: 0;
-}
+#datasetTitle h3 {margin-top: 0px; padding-top: 15px;}
 
-#dataSet > label:hover {
-    text-decoration: inherit;
-}
+#dataSet {padding-top: 15px}
 
 .global, .track-container, .svg-table {
     font-family: Arial;

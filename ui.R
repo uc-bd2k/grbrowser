@@ -78,8 +78,7 @@ shinyUI(
                     
                     conditionalPanel(condition = "input.options_panel%2==1",
                      fluidRow(
-                       column(2,
-                              textInput('plot_title', 'Plot title')),
+                       column(2, sliderInput('plot_height', 'Plot height', min = 300, max = 900, step = 50, value = 600)),
                        column(2,
                               sliderInput('plot_title_size', 'Main Title Size', min = 1, max = 50, step = 1, value = 20)),
                        column(2,
@@ -93,7 +92,11 @@ shinyUI(
                      ),
                      fluidRow(
                        column(2, selectInput('theme_select', "Select Theme", choices = theme_list)),
-                       column(2, sliderInput('plot_height', 'Plot height', min = 300, max = 900, step = 50, value = 600))
+                       column(2, selectInput('add_units', "Select units", choices = c("", "nanomolar", "micromolar"))),
+                       column(2,textInput('plot_title', 'Plot title')),
+                       column(2, textInput('legend_fill', 'Legend title (fill)')),
+                       column(2, textInput('legend_colour', 'Legend title (points)')),
+                       column(2, textInput('x_label', 'X axis label'))
                      )
                     ),
                     fluidRow(

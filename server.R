@@ -62,14 +62,18 @@ shinyServer(function(input,output,session) {
     print(parameter_choice)
     #print(df_sub)
     if(parameter_choice == 'GR50') {
-      parameter_choice = 'log10[GR50]'
+      parameter_choice = 'log10(GR50)'
+      parameter_choice_format = "log<sub>10</sub>(GR<sub>50</sub>)"
     }
     if(parameter_choice == 'Hill') {
-      parameter_choice = 'log2[HillSlope]'
+      parameter_choice = 'log2(h_GR)'
+      parameter_choice_format = "log<sub>2</sub>(h<sub>GR</sub>)"
     }
     if(input$dataSet %in% c("data_5_Genentech_Cell_Line_Screening_Initiative_(gCSI).json","data_6_gCSI_Lapatinib_BRCA_PTEN.json","data_7_gCSI_Docetaxel_OV_CDC73.json")) {
       if(parameter_choice == 'IC50') {
-        parameter_choice = 'log10[IC50]'
+        parameter_choice = 'log10(IC50)'
+        parameter_choice_format = "log<sub>10</sub>(IC<sub>50</sub>)"
+        
       }
     }
     boxplot_data = full_data[full_data[[ input$pick_box_x ]] %in% input$pick_box_factors,]
@@ -90,12 +94,14 @@ shinyServer(function(input,output,session) {
     point_color = factor(get(input$pick_box_point_color, envir = as.environment(boxplot_data)))
     if(dim(boxplot_data)[1] > 0) {
       p <- ggplot(boxplot_data, aes(x = x_factor, y = y_variable))
-      p = p + geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) + geom_jitter(width = 0.2, show.legend = F, aes(colour = point_color)) + xlab('') + ylab(parameter_choice)
+      p = p + geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) + geom_jitter(width = 0.2, show.legend = F, aes(colour = point_color))
       
       # modify x and y names for hovertext
       #test_gg <<- plotly_build(p)
       #test_gg<<- q
-      
+      units = gsub("nanomolar", "nM", input$add_units)
+      units = gsub("micromolar", paste0("&#956;", "M"), units)
+
       p = p + eval(parse(text = input$theme_select)) + theme(
         axis.text = element_text(size = input$axis_label_size),
         axis.title = element_text(size = input$axis_title_size),
@@ -104,9 +110,12 @@ shinyServer(function(input,output,session) {
         plot.margin = unit(c(5.5, 5.5, input$bottom_margin, 5.5), "points"),
         #top, right, bottom, left
         axis.text.x = element_text(angle = input$label_rotate, vjust = 1, hjust=1)
-      ) + labs(title = input$plot_title)
+      ) + labs(title = input$plot_title, x = input$x_label, y = paste(parameter_choice_format, units)) +
+        scale_fill_discrete(name=input$legend_fill) +
+        scale_colour_discrete(name=input$legend_colour)
+      test_plot <<- p
       p1 = plotly_build(p)
-      #test_box <<- p1
+      test_box <<- p1
       # Get y range:
       if(is.null(p1$layout)) {
         top_y = p1$x$layout$yaxis$range[2]
@@ -261,7 +270,7 @@ shinyServer(function(input,output,session) {
       values$config <- fromJSON(json_data)
       
       output$datasetTitle <- renderUI(
-        tags$h3(actionLink('dataset_title', values$config$title))
+        tags$div(tags$h3(actionLink('dataset_title', values$config$title)))
       )
       
       output$datasetInfo <- renderUI(
@@ -596,10 +605,10 @@ observeEvent(input$dataSet, {
   output$plotlyScatter1 <- renderPlotly({
     parameter_choice = input$pick_parameter
     if(parameter_choice == 'GR50') {
-      parameter_choice = 'log10[GR50]'
+      parameter_choice = 'log10(GR50)'
     }
     if(parameter_choice == 'Hill') {
-      parameter_choice = 'log2[HillSlope]'
+      parameter_choice = 'log2(h_GR)'
     }
     padding = 0.05
     scatter_values = full_data[,parameter_choice]
@@ -629,10 +638,10 @@ observeEvent(input$clear, {
   output$plotlyScatter1 <- renderPlotly({
     parameter_choice = input$pick_parameter
     if(parameter_choice == 'GR50') {
-      parameter_choice = 'log10[GR50]'
+      parameter_choice = 'log10(GR50)'
     }
     if(parameter_choice == 'Hill') {
-      parameter_choice = 'log2[HillSlope]'
+      parameter_choice = 'log2(h_GR)'
     }
     padding = 0.05
     scatter_values = full_data[,parameter_choice]
