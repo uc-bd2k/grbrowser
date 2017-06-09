@@ -57,6 +57,14 @@ shinyServer(function(input,output,session) {
   boxplot_data_global = NULL
   #=========== plotly boxplots ===========================
   redrawPlotlyBox <- function(input, values) {
+    all_inputs <- names(input)
+    for(col_name in all_inputs[grep("^subset__", all_inputs)]) {
+      if (length(input[[col_name]])>0) {
+        sel_values_list <- input[[col_name]]
+        df_colname <- gsub("^subset__(.*)","\\1",col_name)
+        subset_data <<- subset_data[which(subset_data[[df_colname]] %in% sel_values_list),]
+      }
+    }
     
     parameter_choice = input$pick_box_y
     print(parameter_choice)
@@ -76,7 +84,7 @@ shinyServer(function(input,output,session) {
         
       }
     }
-    boxplot_data = full_data[full_data[[ input$pick_box_x ]] %in% input$pick_box_factors,]
+    boxplot_data = subset_data[subset_data[[ input$pick_box_x ]] %in% input$pick_box_factors,]
     boxplot_data = boxplot_data[is.finite(boxplot_data[[parameter_choice]]),]
     boxplot_data[[ input$pick_box_x ]] = factor(boxplot_data[[ input$pick_box_x ]])
     
@@ -295,8 +303,10 @@ shinyServer(function(input,output,session) {
       full_data <<- extractData(input, output, values,
                                            values$config$doseresponse$defaultChoicevar,
                                            values$config$doseresponse$defaultGroupingVars)
+      subset_data <<- full_data
       ####### for testing purposes
         test_full_data <<- full_data
+        test_subset_data <<- subset_data
       #######
       output$'dose-response-grid-main' <- renderLiDoseResponseGrid(
           input="",
@@ -304,7 +314,7 @@ shinyServer(function(input,output,session) {
           xmax = 2,
           factors=c(paste(values$config$doseresponse$defaultGroupingVars,collapse = '_'), values$config$doseresponse$defaultChoicevar),
           toggle=values$config$doseresponse$toggle,
-          data=full_data
+          data=subset_data
         )
       groupingColumns <<- values$config$groupableColumns
       values$showtabs=1
@@ -313,7 +323,7 @@ shinyServer(function(input,output,session) {
   
 #========== Main dose-response grid =============
   observeEvent(input$'dose-response-grid-main', {
-    q = parseLabel(input, values, full_data)
+    q = parseLabel(input, values, subset_data)
     if (input$'dose-response-grid-main' != '' && str_count(input$'dose-response-grid-main', '=') == 1) {
       output$graphPopupPlot <- renderPlotly({
         #try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
@@ -434,7 +444,7 @@ observeEvent(input$dataSet, {
 
 observeEvent(c(input$dataSet, input$pick_box_x, input$tabs), {
   if(!is.null(input$pick_box_x)) {
-    picks = sort(unique(full_data[[input$pick_box_x]]))
+    picks = sort(unique(subset_data[[input$pick_box_x]]))
     updateSelectizeInput(
       session, 'pick_box_factors',
       choices = picks,
@@ -445,7 +455,7 @@ observeEvent(c(input$dataSet, input$pick_box_x, input$tabs), {
 
 observeEvent(input$box_scatter_choice, {
   if(!is.null(input$pick_box_x)) {
-    picks = sort(unique(full_data[[input$pick_box_x]]))
+    picks = sort(unique(subset_data[[input$pick_box_x]]))
     updateSelectizeInput(
       session, 'pick_box_factors',
       choices = picks,
@@ -510,12 +520,12 @@ observeEvent(input$dataSet, {
 observeEvent(input$pick_var, {
   updateSelectInput(
     session, 'x_scatter',
-    choices = sort(unique(full_data[[input$pick_var]])),
+    choices = sort(unique(subset_data[[input$pick_var]])),
     selected = NULL
   )
   updateSelectizeInput(
     session, 'y_scatter',
-    choices = sort(unique(full_data[[input$pick_var]])),
+    choices = sort(unique(subset_data[[input$pick_var]])),
     selected = NULL
   )
 })
@@ -524,12 +534,26 @@ observeEvent(input$pick_var, {
 
 observeEvent(c(input$dataSet, input$plot_height), {
   output$boxplot <- renderPlotly({
-    #try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
     box = redrawPlotlyBox(input, values)
     if(!is.null(box)) {
       box
     } else {stop()}
   })
+})
+
+output$subset_selectize <- renderUI({
+  n <- length(values$config$groupableColumns)
+  if (n>0) {
+    subset_cols = values$config$groupableColumns
+    code_output_list <- lapply(1:n, function(i) {
+      codeOutput <- paste("subset__", subset_cols[i], sep="")
+      subset_choices = sort(unique(subset_data[,subset_cols[i]]))
+      selectizeInput(codeOutput, subset_cols[i], choices = subset_choices, multiple = TRUE)
+    })
+  } else code_output_list <- list()
+  # Convert the list to a tagList - this is necessary for the list of items
+  # to display properly.
+  do.call(tagList, code_output_list)
 })
 
 output$grmetric_plot_ui <- renderUI({
@@ -546,8 +570,8 @@ output$scatter <- renderUI({
       ####### Change selectize options to specified in json
       selectInput('pick_parameter', 'Select parameter', choices = c('GR50', 'GRmax', 'GRinf', 'Hill', 'GR_AOC', 'IC50')),
       selectInput('pick_var', 'Select variable', choices = values$config$groupableColumns),
-      selectInput('x_scatter', 'Select x-axis value', choices = unique(full_data[[input$pick_box_x]])),
-      selectizeInput('y_scatter', 'Select y-axis value', choices = unique(full_data[[input$pick_box_x]])),
+      selectInput('x_scatter', 'Select x-axis value', choices = unique(subset_data[[input$pick_box_x]])),
+      selectizeInput('y_scatter', 'Select y-axis value', choices = unique(subset_data[[input$pick_box_x]])),
       bsButton('plot_scatter', 'Add', size = 'small'),
       bsButton('clear', 'Clear', size = 'small')
     )
@@ -573,7 +597,7 @@ output$scatter <- renderUI({
 
 observeEvent(c(input$factorA, input$factorB, input$pick_box_y,
                input$wilcox_method), {
-  wil_data = full_data
+  wil_data = subset_data
   if(!is.null(input$factorA) & !is.null(input$factorB)) {
     print(input$pick_box_x)
     rowsA = wil_data[[input$pick_box_x]] %in% input$factorA
@@ -611,7 +635,7 @@ observeEvent(input$dataSet, {
       parameter_choice = 'log2(h_GR)'
     }
     padding = 0.05
-    scatter_values = full_data[,parameter_choice]
+    scatter_values = subset_data[,parameter_choice]
     finite_values = which(is.finite(scatter_values))
     scatter_values = scatter_values[finite_values]
     x_min = min(scatter_values, na.rm = T)
@@ -644,7 +668,7 @@ observeEvent(input$clear, {
       parameter_choice = 'log2(h_GR)'
     }
     padding = 0.05
-    scatter_values = full_data[,parameter_choice]
+    scatter_values = subset_data[,parameter_choice]
     finite_values = which(is.finite(scatter_values))
     scatter_values = scatter_values[finite_values]
     x_min = min(scatter_values, na.rm = T)

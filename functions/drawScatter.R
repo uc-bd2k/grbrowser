@@ -3,11 +3,11 @@ df_full = NULL
 drawScatter <- function (input, values)
 {
   print("drawScatter function start")
-  xaxis = full_data[get(input$pick_var, envir = as.environment(full_data)) == input$x_scatter,]
+  xaxis = subset_data[get(input$pick_var, envir = as.environment(subset_data)) == input$x_scatter,]
   GR1 = unique(xaxis[[input$pick_var]])
   
   for(i in length(input$y_scatter)) {
-    yaxis = full_data[get(input$pick_var, envir = as.environment(full_data)) == input$y_scatter[i],]
+    yaxis = subset_data[get(input$pick_var, envir = as.environment(subset_data)) == input$y_scatter[i],]
     GR2 = unique(yaxis[[input$pick_var]])
     yaxis$cross = paste(GR1, GR2, sep = ' x ')
     xaxis$cross = paste(GR1, GR2, sep = ' x ')
@@ -51,7 +51,7 @@ drawScatter <- function (input, values)
     parameter_choice = 'log2[HillSlope]'
   }
   padding = 0.05
-  scatter_values = full_data[,parameter_choice]
+  scatter_values = subset_data[,parameter_choice]
   finite_values = which(is.finite(scatter_values))
   scatter_values = scatter_values[finite_values]
   x_min = min(scatter_values, na.rm = T)

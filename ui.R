@@ -23,8 +23,9 @@ shinyUI(
             radioButtons(
                 'dataSet', 'Select Dataset to Browse', choices = c('')
             ),
-            actionButton("datasetURL", "Get Bookmark", icon = shiny::icon("link", lib = "glyphicon"))
-        ),
+            actionButton("datasetURL", "Get Bookmark", icon = shiny::icon("link", lib = "glyphicon")),
+            uiOutput("subset_selectize")
+            ),
         # Main column
         column(
             10,

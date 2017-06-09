@@ -1,4 +1,4 @@
-parseLabel = function(input, values, full_data) {
+parseLabel = function(input, values, subset_data) {
   print("parseLabel function start")
   graphParams <- input$'dose-response-grid-main'
   print('graphparams_input')
@@ -54,7 +54,7 @@ parseLabel = function(input, values, full_data) {
       col2 = params[2]
       row1 = params[3]
       row2 = params[4]
-      popupData = full_data[full_data[[col1]] == row1 & full_data[[col2]] == row2,]
+      popupData = subset_data[subset_data[[col1]] == row1 & subset_data[[col2]] == row2,]
       cols_vector = c(col1, col2)
       print('cols_vector')
       print(cols_vector)
@@ -75,7 +75,7 @@ parseLabel = function(input, values, full_data) {
       print(1.11)
       col1 = params[1]
       row1 = params[2]
-      popupData = full_data[full_data[[col1]] == row1,]
+      popupData = subset_data[subset_data[[col1]] == row1,]
       
       #for seeding density dataset with toggle
       if(exists('pick_vector2')) {
@@ -107,7 +107,7 @@ parseLabel = function(input, values, full_data) {
       print(params)
       q = drawPopup(popupData, values, 1)
     } else {
-      q = ggplot(full_data) + geom_blank()
+      q = ggplot(subset_data) + geom_blank()
     }
     print("parseLabel function end")
     return(q) 
