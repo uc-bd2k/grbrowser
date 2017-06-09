@@ -548,7 +548,7 @@ output$subset_selectize <- renderUI({
     code_output_list <- lapply(1:n, function(i) {
       codeOutput <- paste("subset__", subset_cols[i], sep="")
       subset_choices = sort(unique(subset_data[,subset_cols[i]]))
-      selectizeInput(codeOutput, subset_cols[i], choices = subset_choices, multiple = TRUE)
+      selectizeInput(codeOutput, subset_cols[i], choices = subset_choices, multiple = TRUE, width = "90%")
     })
   } else code_output_list <- list()
   # Convert the list to a tagList - this is necessary for the list of items

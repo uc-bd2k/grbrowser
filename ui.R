@@ -24,7 +24,9 @@ shinyUI(
                 'dataSet', 'Select Dataset to Browse', choices = c('')
             ),
             actionButton("datasetURL", "Get Bookmark", icon = shiny::icon("link", lib = "glyphicon")),
-            uiOutput("subset_selectize")
+            hr(),
+            fluidRow(actionLink("subset_data", "Subset data")),
+            fluidRow(conditionalPanel(condition = "input.subset_data%2==1", uiOutput("subset_selectize")))
             ),
         # Main column
         column(
