@@ -99,8 +99,8 @@ shinyServer(function(input,output,session) {
       # modify x and y names for hovertext
       #test_gg <<- plotly_build(p)
       #test_gg<<- q
-      units = gsub("nanomolar", "nM", input$add_units)
-      units = gsub("micromolar", paste0("&#956;", "M"), units)
+      unit_label = gsub("nanomolar", "nM", input$add_units)
+      unit_label = gsub("micromolar", paste0("&#956;", "M"), unit_label)
 
       p = p + eval(parse(text = input$theme_select)) + theme(
         axis.text = element_text(size = input$axis_label_size),
@@ -110,7 +110,7 @@ shinyServer(function(input,output,session) {
         plot.margin = unit(c(5.5, 5.5, input$bottom_margin, 5.5), "points"),
         #top, right, bottom, left
         axis.text.x = element_text(angle = input$label_rotate, vjust = 1, hjust=1)
-      ) + labs(title = input$plot_title, x = input$x_label, y = paste(parameter_choice_format, units)) +
+      ) + labs(title = input$plot_title, x = input$x_label, y = paste(parameter_choice_format, unit_label)) +
         scale_fill_discrete(name=input$legend_fill) +
         scale_colour_discrete(name=input$legend_colour)
       test_plot <<- p
