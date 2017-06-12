@@ -24,7 +24,10 @@ shinyUI(
             radioButtons(
                 'dataSet', 'Select Dataset to Browse', choices = c('')
             ),
-            actionButton("datasetURL", "Get Bookmark", icon = shiny::icon("link", lib = "glyphicon"))
+            actionButton("datasetURL", "Get Bookmark", icon = shiny::icon("link", lib = "glyphicon")),
+            br(),
+            "We are currently making updates to the grbrowser. Check the development version ",
+            a("here", href = "http://www.grcalculator.org/grbrowser_dev/")
             ),
         # Main column
         column(
