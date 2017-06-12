@@ -70,6 +70,7 @@ shinyServer(function(input,output,session) {
     
     parameter_choice = input$pick_box_y
     print(parameter_choice)
+    parameter_choice_format = parameter_choice
     #print(df_sub)
     if(parameter_choice == 'GR50') {
       parameter_choice = 'log10(GR50)'
@@ -550,7 +551,7 @@ output$subset_selectize <- renderUI({
     subset_cols = values$config$groupableColumns
     code_output_list <- lapply(1:n, function(i) {
       codeOutput <- paste("subset__", subset_cols[i], sep="")
-      subset_choices = sort(unique(subset_data[,subset_cols[i]]))
+      subset_choices = sort(unique(full_data[,subset_cols[i]]))
       selectizeInput(codeOutput, subset_cols[i], choices = subset_choices, multiple = TRUE, width = "90%")
     })
   } else code_output_list <- list()
@@ -573,8 +574,8 @@ output$scatter <- renderUI({
       ####### Change selectize options to specified in json
       selectInput('pick_parameter', 'Select parameter', choices = c('GR50', 'GRmax', 'GRinf', 'Hill', 'GR_AOC', 'IC50')),
       selectInput('pick_var', 'Select variable', choices = values$config$groupableColumns),
-      selectInput('x_scatter', 'Select x-axis value', choices = unique(subset_data[[input$pick_box_x]])),
-      selectizeInput('y_scatter', 'Select y-axis value', choices = unique(subset_data[[input$pick_box_x]])),
+      selectInput('x_scatter', 'Select x-axis value', choices = unique(full_data[[input$pick_box_x]])),
+      selectizeInput('y_scatter', 'Select y-axis value', choices = unique(full_data[[input$pick_box_x]])),
       bsButton('plot_scatter', 'Add', size = 'small'),
       bsButton('clear', 'Clear', size = 'small')
     )
