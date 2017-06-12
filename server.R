@@ -122,19 +122,19 @@ shinyServer(function(input,output,session) {
                                      hjust = 0.5*(1 - sin((-input$label_rotate)*pi/180)),
                                      vjust = 0.5*(1 + cos((-input$label_rotate)*pi/180)))
       ) +
-        labs(title = input$plot_title, x = input$x_label, y = paste(parameter_choice_format, unit_label)) +
+        labs(title = input$plot_title, x = input$x_label) +
         scale_fill_discrete(name=input$legend_fill) +
         scale_colour_discrete(name=input$legend_colour)
-      test_plot <<- p
-      p1 = plotly_build(p)
-      test_box <<- p1
+
+      p_plotly = plotly_build(p)
+      test_box <<- p_plotly
       # Get y range:
-      if(is.null(p1$layout)) {
-        top_y = p1$x$layout$yaxis$range[2]
-        bottom_y = p1$x$layout$yaxis$range[1]
+      if(is.null(p_plotly$layout)) {
+        top_y = p_plotly$x$layout$yaxis$range[2]
+        bottom_y = p_plotly$x$layout$yaxis$range[1]
       } else {
-        top_y = p1[[2]]$yaxis$range[2]
-        bottom_y = p1[[2]]$yaxis$range[1]
+        top_y = p_plotly[[2]]$yaxis$range[2]
+        bottom_y = p_plotly[[2]]$yaxis$range[1]
       }
       total_y_range = top_y - bottom_y
       
@@ -144,10 +144,10 @@ shinyServer(function(input,output,session) {
         #for(i in 1:length(levels(x_factor))) {
         len = length(input$factorA) + length(input$factorB)
         for(i in 1:len) {
-          if(is.null(p1$data)) {
-            whiskers[i] = fivenum(p1$x$data[[i]]$y)[5]
+          if(is.null(p_plotly$data)) {
+            whiskers[i] = fivenum(p_plotly$x$data[[i]]$y)[5]
           } else {
-            whiskers[i] = fivenum(p1[[1]][[i]]$y)[5]
+            whiskers[i] = fivenum(p_plotly[[1]][[i]]$y)[5]
           }
         }
         top_whisker = max(whiskers, na.rm = TRUE)
@@ -163,10 +163,13 @@ shinyServer(function(input,output,session) {
         lenB = length(input$factorB)
         
         if(lenA == 1 & lenB == 1) {
-          p = p + annotate("text", x = 1.5, y = lh + bump/2, label = paste("p =",values$wilcox)) + geom_segment(x = 1, y = lh, xend = 2, yend = lh) + geom_segment(x = 1, y = ll, xend = 1, yend = lh) + geom_segment(x = 2, y = ll, xend = 2, yend = lh)
-          
+          p = p + annotate("text", x = 1.5, y = lh + bump/2, label = paste("p =",values$wilcox)) +
+            geom_segment(x = 1, y = lh, xend = 2, yend = lh) +
+            geom_segment(x = 1, y = ll, xend = 1, yend = lh) +
+            geom_segment(x = 2, y = ll, xend = 2, yend = lh)
         } else if(lenA > 1 & lenB == 1) {
-          p = p + annotate("text", x = ((lenA + 1) + ((lenA+1)/2))/2, y = lh + 2*bump, label = paste("p =",values$wilcox)) +
+          p = p + annotate("text", x = ((lenA + 1) + ((lenA+1)/2))/2, y = lh + 2*bump, 
+                           label = paste("p =",values$wilcox)) +
             geom_segment(x = 1, y = lh, xend = lenA, yend = lh) +
             geom_segment(x = 1, y = ll, xend = 1, yend = lh) +
             geom_segment(x = lenA, y = ll, xend = lenA, yend = lh) +
@@ -182,7 +185,8 @@ shinyServer(function(input,output,session) {
             geom_segment(x = 2, y = ll, xend = 2, yend = lh) +
             geom_segment(x = lenB+1, y = ll, xend = lenB+1, yend = lh)
         } else if(lenA > 1 & lenB > 1) {
-          p = p + annotate("text", x = .25*(lenB-1)+.75*(lenA+1), y = lh + 2*bump, label = paste("p =",values$wilcox)) + 
+          p = p + annotate("text", x = .25*(lenB-1)+.75*(lenA+1), y = lh + 2*bump,
+                           label = paste("p =",values$wilcox)) + 
             geom_segment(x = 1, y = lh, xend = lenA, yend = lh) +
             geom_segment(x = 1, y = ll, xend = 1, yend = lh) +
             geom_segment(x = lenA, y = ll, xend = lenA, yend = lh) +
@@ -193,37 +197,50 @@ shinyServer(function(input,output,session) {
             geom_segment(x = (lenA+1)/2, y = lh, xend = (lenA+1)/2, yend = lh+bump) +
             geom_segment(x = (lenA+1)+((lenB-1)/2), y = lh, xend = (lenA+1)+((lenB-1)/2), yend = lh+bump)
         }
-        plotScatter_box <<- p
-        p = plotly_build(p)
-        if(is.null(p$layout)) {
-          p$x$layout$yaxis$range[2] = top_y
+        p_plotly = p + labs(y = paste(parameter_choice_format, unit_label))
+        p_ggplot = p + labs(y = expression(paste(parameter_choice, unit_label_ggplot)))
+        
+        plotScatter_box <<- p_ggplot
+        
+        p_plotly = plotly_build(p_plotly)
+        if(is.null(p_plotly$layout)) {
+          p_plotly$x$layout$yaxis$range[2] = top_y
         } else {
-          p[[2]]$yaxis$range[2] = top_y
+          p_plotly[[2]]$yaxis$range[2] = top_y
         }
       } else {
-        plotScatter_box <<- p
-        p = plotly_build(p)
+        p_plotly = p + labs(y = paste(parameter_choice_format, unit_label))
+        if(input$add_units == "micromolar") {
+          p_ggplot = p + labs(y = paste(parameter_choice, "uM"))
+        } else if(input$add_units == "nanomolar") {
+          p_ggplot = p + labs(y = paste(parameter_choice, "nM"))
+        } else {
+          p_ggplot = p + labs(y = parameter_choice)
+        }
+        
+        plotScatter_box <<- p_ggplot
+        p_plotly = plotly_build(p_plotly)
       }
       
-      # Current CRAN version of plotly (3.6.0) uses p$data
-      # Latest github version of plotly (4.3.5) uses p$x$data
-      if(is.null(p$data)) {
-        for(i in 1:length(p$x$data)) {
-          if(!is.null(p$x$data[[i]]$text)) {
-            p$x$data[[i]]$text = gsub('x_factor', input$pick_box_x, p$x$data[[i]]$text)
-            p$x$data[[i]]$text = gsub('y_variable', parameter_choice, p$x$data[[i]]$text)
+      # Current CRAN version of plotly (3.6.0) uses p_plotly$data
+      # Latest github version of plotly (4.3.5) uses p_plotly$x$data
+      if(is.null(p_plotly$data)) {
+        for(i in 1:length(p_plotly$x$data)) {
+          if(!is.null(p_plotly$x$data[[i]]$text)) {
+            p_plotly$x$data[[i]]$text = gsub('x_factor', input$pick_box_x, p_plotly$x$data[[i]]$text)
+            p_plotly$x$data[[i]]$text = gsub('y_variable', parameter_choice, p_plotly$x$data[[i]]$text)
           } 
         }
       } else {
-        for(i in 1:length(p$data)){
-          if(!is.null(p$data[[i]]$text)) {
-            p$data[[i]]$text = gsub('x_factor', input$pick_box_x, p$data[[i]]$text)
-            p$data[[i]]$text = gsub('y_variable', parameter_choice, p$data[[i]]$text)
+        for(i in 1:length(p_plotly$data)){
+          if(!is.null(p_plotly$data[[i]]$text)) {
+            p_plotly$data[[i]]$text = gsub('x_factor', input$pick_box_x, p_plotly$data[[i]]$text)
+            p_plotly$data[[i]]$text = gsub('y_variable', parameter_choice, p_plotly$data[[i]]$text)
           }
         }
       }
-      test_box <<- p
-      return(p)
+      test_box <<- p_plotly
+      return(p_plotly)
     }
   }
   
