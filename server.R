@@ -115,7 +115,6 @@ shinyServer(function(input,output,session) {
           axis.text = element_text(size = input$axis_label_size),
           axis.title = element_text(size = input$axis_title_size),
           plot.title = element_text(size = input$plot_title_size),
-          plot.subtitle = element_text(size = input$plot_subtitle_size),
           plot.margin = unit(c(5.5, 5.5, input$bottom_margin, 5.5), "points"),
           #top, right, bottom, left
           axis.text.x = element_text(angle = input$label_rotate, 
