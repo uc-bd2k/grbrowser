@@ -80,7 +80,7 @@ shinyServer(function(input,output,session) {
       parameter_choice = 'log2(h_GR)'
       parameter_choice_format = "log<sub>2</sub>(h<sub>GR</sub>)"
     }
-    if(input$dataSet %in% c("data_5_Genentech_Cell_Line_Screening_Initiative_(gCSI).json","data_6_gCSI_Lapatinib_BRCA_PTEN.json","data_7_gCSI_Docetaxel_OV_CDC73.json")) {
+    if(input$dataSet %in% c("data_5_Genentech_Cell_Line_Screening_Initiative_(gCSI).json")) {
       if(parameter_choice == 'IC50') {
         parameter_choice = 'log10(IC50)'
         parameter_choice_format = "log<sub>10</sub>(IC<sub>50</sub>)"
@@ -255,7 +255,7 @@ shinyServer(function(input,output,session) {
     }
   }
   
-  values <- reactiveValues(config=c(),data=c(),showtabs=0, sub_data = NULL)
+  values <- reactiveValues(config=c(),data=c(),showtabs=0, showtabs_drc = 0, sub_data = NULL)
   
   output$input_table <- DT::renderDataTable(DT::datatable({
     x<-values$data
@@ -265,7 +265,7 @@ shinyServer(function(input,output,session) {
 
   observe({
     toggle(condition = values$showtabs, selector = "#tabs li a[data-value=tab-data]")
-    toggle(condition = values$showtabs, selector = "#tabs li a[data-value=tab-drc]")
+    toggle(condition = values$showtabs_drc, selector = "#tabs li a[data-value=tab-drc]")
     toggle(condition = values$showtabs, selector = "#tabs li a[data-value=tab-gr]")
   })
   
@@ -321,6 +321,12 @@ shinyServer(function(input,output,session) {
         )
       groupingColumns <<- values$config$groupableColumns
       values$showtabs=1
+      if(!input$dataSet %in% c("data_5_Genentech_Cell_Line_Screening_Initiative_(gCSI).json")) {
+        values$showtabs_drc = 1
+      } else {
+        values$showtabs_drc = 0
+        updateTabsetPanel(session,"tabs",selected="tab-gr")
+        }
     }
   })
   
