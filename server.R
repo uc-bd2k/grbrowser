@@ -122,9 +122,7 @@ shinyServer(function(input,output,session) {
                                      hjust = 0.5*(1 - sin((-input$label_rotate)*pi/180)),
                                      vjust = 0.5*(1 + cos((-input$label_rotate)*pi/180)))
       ) +
-        labs(title = input$plot_title, x = input$x_label) +
-        scale_fill_discrete(name=input$legend_fill) +
-        scale_colour_discrete(name=input$legend_colour)
+        labs(title = input$plot_title, x = input$x_label)
 
       p_plotly = plotly_build(p)
       test_box <<- p_plotly

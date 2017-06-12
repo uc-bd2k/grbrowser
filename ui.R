@@ -97,8 +97,6 @@ shinyUI(
                        column(2, selectInput('theme_select', "Select Theme", choices = theme_list)),
                        column(2, selectInput('add_units', "Select units", choices = c("", "nanomolar", "micromolar"))),
                        column(2,textInput('plot_title', 'Plot title')),
-                       column(2, textInput('legend_fill', 'Legend title (fill)')),
-                       column(2, textInput('legend_colour', 'Legend title (points)')),
                        column(2, textInput('x_label', 'X axis label'))
                      )
                     ),
