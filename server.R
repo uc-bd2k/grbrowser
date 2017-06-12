@@ -198,7 +198,13 @@ shinyServer(function(input,output,session) {
             geom_segment(x = (lenA+1)+((lenB-1)/2), y = lh, xend = (lenA+1)+((lenB-1)/2), yend = lh+bump)
         }
         p_plotly = p + labs(y = paste(parameter_choice_format, unit_label))
-        p_ggplot = p + labs(y = expression(paste(parameter_choice, unit_label_ggplot)))
+        if(input$add_units == "micromolar") {
+          p_ggplot = p + labs(y = bquote(.(parameter_choice) ~ .(quote(mu)) * "M"))
+        } else if(input$add_units == "nanomolar") {
+          p_ggplot = p + labs(y = paste(parameter_choice, "nM"))
+        } else {
+          p_ggplot = p + labs(y = parameter_choice)
+        }
         
         plotScatter_box <<- p_ggplot
         
@@ -211,7 +217,7 @@ shinyServer(function(input,output,session) {
       } else {
         p_plotly = p + labs(y = paste(parameter_choice_format, unit_label))
         if(input$add_units == "micromolar") {
-          p_ggplot = p + labs(y = paste(parameter_choice, "uM"))
+          p_ggplot = p + labs(y = bquote(.(parameter_choice) ~ .(quote(mu)) * "M"))
         } else if(input$add_units == "nanomolar") {
           p_ggplot = p + labs(y = paste(parameter_choice, "nM"))
         } else {
