@@ -107,9 +107,6 @@ shinyServer(function(input,output,session) {
       p <- ggplot(boxplot_data, aes(x = x_factor, y = y_variable))
       p = p + geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) + geom_jitter(width = 0.2, show.legend = F, aes(colour = point_color))
       
-      # modify x and y names for hovertext
-      #test_gg <<- plotly_build(p)
-      #test_gg<<- q
       unit_label = gsub("nanomolar", "nM", input$add_units)
       unit_label = gsub("micromolar", paste0("&#956;", "M"), unit_label)
 
@@ -120,7 +117,9 @@ shinyServer(function(input,output,session) {
         plot.subtitle = element_text(size = input$plot_subtitle_size),
         plot.margin = unit(c(5.5, 5.5, input$bottom_margin, 5.5), "points"),
         #top, right, bottom, left
-        axis.text.x = element_text(angle = input$label_rotate, vjust = 1, hjust=1)
+        axis.text.x = element_text(angle = input$label_rotate, 
+                                   hjust = 0.5*(1 - sin((-input$label_rotate)*pi/180)),
+                                   vjust = 0.5*(1 + cos((-input$label_rotate)*pi/180)))
       ) + labs(title = input$plot_title, x = input$x_label, y = paste(parameter_choice_format, unit_label)) +
         scale_fill_discrete(name=input$legend_fill) +
         scale_colour_discrete(name=input$legend_colour)
@@ -137,9 +136,11 @@ shinyServer(function(input,output,session) {
       }
       total_y_range = top_y - bottom_y
       
-      q <- ggplot(boxplot_data, aes(x = x_factor, y = y_variable, ymin = bottom_y, ymax = top_y))
-      q = q + geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) + geom_jitter(width = 0.5, aes(colour = point_color)) + xlab('') + ylab(parameter_choice) #+ theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
-      q$labels$colour = input$pick_box_point_color
+      # q <- ggplot(boxplot_data, aes(x = x_factor, y = y_variable, ymin = bottom_y, ymax = top_y))
+      # q = q + geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) + geom_jitter(width = 0.5, aes(colour = point_color)) + xlab('') + ylab(parameter_choice) #+ theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+      # q$labels$colour = input$pick_box_point_color
+      q = p
+      
       
       if(!is.null(values$wilcox)) {
         # Get top of boxplot whiskers
@@ -165,9 +166,9 @@ shinyServer(function(input,output,session) {
         lenA = length(input$factorA)
         lenB = length(input$factorB)
         
-        q <- ggplot(boxplot_data, aes(x = x_factor, y = y_variable, ymin = bottom_y, ymax = top_y))
-        q = q + geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) + geom_jitter(width = 0.5, aes(colour = point_color)) + xlab('') + ylab(parameter_choice)# + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) # + theme_grey(base_size = 14) 
-        q$labels$colour = input$pick_box_point_color
+        # q <- ggplot(boxplot_data, aes(x = x_factor, y = y_variable, ymin = bottom_y, ymax = top_y))
+        # q = q + geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) + geom_jitter(width = 0.5, aes(colour = point_color)) + xlab('') + ylab(parameter_choice)# + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) # + theme_grey(base_size = 14) 
+        # q$labels$colour = input$pick_box_point_color
         
         if(lenA == 1 & lenB == 1) {
           p = p + annotate("text", x = 1.5, y = lh + bump/2, label = paste("p =",values$wilcox)) + geom_segment(x = 1, y = lh, xend = 2, yend = lh) + geom_segment(x = 1, y = ll, xend = 1, yend = lh) + geom_segment(x = 2, y = ll, xend = 2, yend = lh)
@@ -220,35 +221,15 @@ shinyServer(function(input,output,session) {
           if(!is.null(p$x$data[[i]]$text)) {
             p$x$data[[i]]$text = gsub('x_factor', input$pick_box_x, p$x$data[[i]]$text)
             p$x$data[[i]]$text = gsub('y_variable', parameter_choice, p$x$data[[i]]$text)
+          } 
+        }
+      } else {
+        for(i in 1:length(p$data)){
+          if(!is.null(p$data[[i]]$text)) {
+            p$data[[i]]$text = gsub('x_factor', input$pick_box_x, p$data[[i]]$text)
+            p$data[[i]]$text = gsub('y_variable', parameter_choice, p$data[[i]]$text)
           }
         }
-      #   # p$layout$xaxis$tickangle = -90
-      #   # p$layout$margin$b = 200
-      #   bottom_margin = max(nchar(p$x$layout$xaxis$ticktext), na.rm = TRUE)
-      #   left = nchar(p$x$layout$xaxis$ticktext[1])
-      #   p$x$layout$xaxis$tickangle = -45
-      #   p$x$layout$margin$b = 15 + 6*bottom_margin
-      #   if(left > 10) {
-      #     left_margin = p$x$layout$margin$l + (left-10)*6
-      #     p$x$layout$margin$l = left_margin
-      #   }
-      } else {
-      #   for(i in 1:length(p$data)){
-      #     if(!is.null(p$data[[i]]$text)) {
-      #       p$data[[i]]$text = gsub('x_factor', input$pick_box_x, p$data[[i]]$text)
-      #       p$data[[i]]$text = gsub('y_variable', parameter_choice, p$data[[i]]$text)
-      #     }
-      #   }
-      #   # p$layout$xaxis$tickangle = -90
-      #   # p$layout$margin$b = 200
-      #   bottom_margin = max(nchar(p$layout$xaxis$ticktext), na.rm = TRUE)
-      #   left = nchar(p$layout$xaxis$ticktext[1])
-      #   p$layout$xaxis$tickangle = -45
-      #   p$layout$margin$b = 15 + 6*bottom_margin
-      #   if(left > 10) {
-      #     left_margin = p$layout$margin$l + (left-10)*6
-      #     p$layout$margin$l = left_margin
-      #   }
       }
       test_box <<- p
       return(p)
