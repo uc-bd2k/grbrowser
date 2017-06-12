@@ -57,6 +57,7 @@ shinyServer(function(input,output,session) {
   boxplot_data_global = NULL
   #=========== plotly boxplots ===========================
   redrawPlotlyBox <- function(input, values) {
+    subset_data <<- full_data
     all_inputs <- names(input)
     for(col_name in all_inputs[grep("^subset__", all_inputs)]) {
       if (length(input[[col_name]])>0) {
@@ -65,6 +66,7 @@ shinyServer(function(input,output,session) {
         subset_data <<- subset_data[which(subset_data[[df_colname]] %in% sel_values_list),]
       }
     }
+    values$sub_data = subset_data
     
     parameter_choice = input$pick_box_y
     print(parameter_choice)
@@ -252,7 +254,7 @@ shinyServer(function(input,output,session) {
     }
   }
   
-  values <- reactiveValues(config=c(),data=c(),showtabs=0)
+  values <- reactiveValues(config=c(),data=c(),showtabs=0, sub_data = NULL)
   
   output$input_table <- DT::renderDataTable(DT::datatable({
     x<-values$data
@@ -442,8 +444,9 @@ observeEvent(input$dataSet, {
   )
 })
 
-observeEvent(c(input$dataSet, input$pick_box_x, input$tabs), {
+observeEvent(c(input$dataSet, input$pick_box_x, input$tabs, values$sub_data), {
   if(!is.null(input$pick_box_x)) {
+    print("update pick_box_factors")
     picks = sort(unique(subset_data[[input$pick_box_x]]))
     updateSelectizeInput(
       session, 'pick_box_factors',
