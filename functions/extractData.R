@@ -13,6 +13,10 @@ extractData <- function(input, output, values, choiceVar, groupingVars) {
   data1['GR50'] <- values$data[values$config$scatterplot$GR50]
   data1['log10(GR50)'] <- lapply(data1['GR50'], log10)
   data1['GRmax'] <- values$data[values$config$scatterplot$GRmax]
+  if(sum(c('IC50', 'Emax') %in% names(values$data)) == 2) {
+    data1['log10(IC50)'] <- lapply(data1['IC50'], log10)
+    data1['Emax'] <- values$data[values$config$scatterplot$Emax]
+    }
     
   full_data <<- data1
   #test <<- full_data

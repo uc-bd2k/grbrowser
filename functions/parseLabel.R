@@ -8,7 +8,7 @@ parseLabel = function(input, values, subset_data) {
   if(graphParams == ',') {
     graphParams = ''
   }
-  
+  print(graphParams)
   if (!graphParams == '') {
     print(1)
     params <- unlist(strsplit(graphParams, split = '='))
