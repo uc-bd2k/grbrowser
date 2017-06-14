@@ -1,0 +1,29 @@
+{
+    "datafile":["www/20170612_CTRP_GRfits.tsv"],
+    "title": ["Cancer Therapeutics Research Portal (CTRP)"],
+    "description": ["The Cancer Therapeutics Research Portal (CTRP) [Rees 2016 'Correlating chemical sensitivity and basal gene expression reveals mechanism of action.'] is a large-scale dose-response dataset created at the Broad Institute of Harvard and MIT, consisting of ~900 cell lines treated with ~500 small molecules. Originally, the data were reported with traditional drug sensitivity metrics, but here we present the growth-rate inhibition (GR) metrics calculated using inferred division times for 146 cell lines. Division times were inferred using gemcitabine response as a fiducial. Note that we discarded measurements in the CTRP data obtained at drug concentrations higher than 32 &mu;M because these were noisier. In place of GRmax we used an interpolated value GR<sub>2&mu;M</sub> based on fitted dose-response curves because the highest concentrations used in the CTRP experiments are not biologically relevant and, as noted above, the measurements at high concentrations were noisier. For more details about this calculation, see Hafner et al. Nature Biotech 2017, 'Online Methods' section."],
+    "filterColumns":{},
+    "renameColumns":{"Small_Molecule": "Perturbagen"},
+    "groupableColumns":["Perturbagen","Cell_Line"],
+    "doseresponse":{
+       "xmin":["0"],"xmax":["0"],
+       "defaultChoicevar":["Cell_Line"],
+       "defaultGroupingVars":["Perturbagen"],
+       "EC50":["GEC50"],
+       "Einf":["GRinf"],
+       "HillSlope":["GR_Hill_Coeff"],
+       "toggle":["1"],
+       "hideselector":["0"]
+    },
+     "scatterplot":{
+       "defaultChoicevar":["Cell_Line"],
+       "defaultGroupingVars":["Perturbagen"],
+       "GR50":["GR50"],
+       "GRmax":["GRmax"],
+       "GRinf":["GRinf"],
+       "HillSlope":["GR_Hill_Coeff"],
+       "IC50":["IC50"],
+       "Emax":["Emax"],
+       "hideselector":["0"]
+     }
+}
