@@ -459,7 +459,8 @@ observeEvent(input$box_scatter_choice, {
   }
 })
 
-observeEvent(input$factorA, {
+observeEvent(input$factorA, ignoreNULL = FALSE, {
+  print("refresh B")
   picks = sort(input$pick_box_factors)
   picks1 = setdiff(picks, input$factorA)
   updateSelectizeInput(
@@ -469,7 +470,8 @@ observeEvent(input$factorA, {
   )
 })
 
-observeEvent(input$factorB, {
+observeEvent(input$factorB, ignoreNULL = FALSE, {
+  print("refresh A")
   picks = sort(input$pick_box_factors)
   picks2 = setdiff(picks, input$factorB)
   updateSelectizeInput(
