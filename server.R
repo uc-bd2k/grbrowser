@@ -24,6 +24,7 @@ shinyServer(function(input,output,session) {
                       value = urlvalue)
     }
   })
+
   # output$bookmark <- renderText({
   #   paste0("http://www.grcalculator.org/grbrowser/?dataset=",
   #          gsub("^data_\\d+_(.*?)\\.json$", "\\1", input$dataSet), collapse = "")
@@ -576,10 +577,10 @@ output$scatter <- renderUI({
     fluidRow(
       ###### Change "pick_box_y" metrics to inherit from json for each dataset?
       ###### Add IC (and GI?) metrics to pick_box_y
-      selectInput('pick_box_y', 'Select parameter', choices = c('GR50', 'GRmax', 'GRinf', 'Hill', 'GR_AOC', 'IC50', 'Emax')),
+      selectInput('pick_box_y', 'Select parameter', choices = c('GR50', 'GRmax', 'GRinf', 'h_GR', 'GR_AOC', 'IC50', 'Emax', 'Einf', 'h', 'AUC')),
       selectInput('pick_box_x', 'Select grouping variable', choices = values$config$groupableColumns),
       selectInput('pick_box_point_color', 'Select additional point coloring', choices = values$config$groupableColumns),
-      selectizeInput('pick_box_factors', 'Select factors of grouping variable', choices = c(), multiple = T),
+      selectizeInput('pick_box_factors', 'Show/hide data', choices = c(), multiple = T),
       actionLink('wilcox_panel', 'Compare boxplots'),
       conditionalPanel(condition = "input.wilcox_panel%2==1",
                        selectizeInput('factorA', 'Wilcoxon rank-sum test', choices = c(), multiple = T),
