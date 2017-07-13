@@ -248,7 +248,7 @@ shinyServer(function(input,output,session) {
     }
   }
   
-  values <- reactiveValues(config=c(),data=c(),showtabs=0, sub_data = NULL)
+  values <- reactiveValues(config=c(),data=c(),showtabs=0, showtab_drc=1, sub_data = NULL)
   
   output$input_table <- DT::renderDataTable(DT::datatable({
     x<-values$data
@@ -259,6 +259,7 @@ shinyServer(function(input,output,session) {
   observe({
     toggle(condition = values$showtabs, selector = "#tabs li a[data-value=tab-data]")
     toggle(condition = values$showtabs, selector = "#tabs li a[data-value=tab-gr]")
+    toggle(condition = values$showtabs_drc, selector = "#tabs li a[data-value=tab-drc]")
   })
   
   observeEvent(input$dataSet, {
@@ -303,6 +304,8 @@ shinyServer(function(input,output,session) {
         test_full_data <<- full_data
         test_subset_data <<- subset_data
       #######
+        if(!input$dataSet %in% c("data_6_Cancer_Therapeutics_Response_Portal_(CTRP).json")) {
+          values$showtabs_drc = 1
       output$'dose-response-grid-main' <- renderLiDoseResponseGrid(
           input="",
           xmin = -4,
@@ -313,6 +316,10 @@ shinyServer(function(input,output,session) {
         )
       groupingColumns <<- values$config$groupableColumns
       values$showtabs=1
+      } else {
+        values$showtabs_drc = 0
+        updateTabsetPanel(session,"tabs",selected="tab-gr")
+      }
     }
   })
   
