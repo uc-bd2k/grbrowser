@@ -26,6 +26,9 @@ shinyUI(
             actionButton("datasetURL", "Get Bookmark", icon = shiny::icon("link", lib = "glyphicon")),
             hr(),
             fluidRow(actionLink("subset_data", "Subset data")),
+            tags$script("$(document).on('change', '.dynamicSI', function () {
+                              Shiny.onInputChange('lastSelect', Math.random());
+                             });"),
             fluidRow(conditionalPanel(condition = "input.subset_data%2==1", uiOutput("subset_selectize")))
             ),
         # Main column

@@ -248,7 +248,8 @@ shinyServer(function(input,output,session) {
     }
   }
   
-  values <- reactiveValues(config=c(),data=c(),showtabs=0, showtab_drc=1, sub_data = NULL)
+  values <- reactiveValues(config=c(),data=c(),showtabs=0, showtab_drc=1,
+                           sub_data = NULL, subset_inputs = NULL)
   
   output$input_table <- DT::renderDataTable(DT::datatable({
     x<-values$data
@@ -292,9 +293,7 @@ shinyServer(function(input,output,session) {
       updateSelectizeInput(session, 'doseresponsegrid_choiceVar', choices = values$config$groupableColumns, server = TRUE, selected=values$config$doseresponse$defaultChoicevar)
       updateSelectizeInput(session, 'doseresponsegrid_groupingVars', choices = values$config$groupableColumns, server = TRUE, selected=values$config$doseresponse$defaultGroupingVars)
 
-      doseresponsegrid_hideselector <- values$config$doseresponse$hideselector
-      if (is.null(doseresponsegrid_hideselector)) { doseresponsegrid_hideselector <- 0; }
-      updateSelectizeInput(session, 'doseresponsegrid_hideselector', selected=doseresponsegrid_hideselector)
+      updateSelectizeInput(session, 'doseresponsegrid_hideselector', selected=values$config$doseresponse$hideselector)
       
       full_data <<- extractData(input, output, values,
                                            values$config$doseresponse$defaultChoicevar,
@@ -304,6 +303,40 @@ shinyServer(function(input,output,session) {
         test_full_data <<- full_data
         test_subset_data <<- subset_data
       #######
+        
+        output$subset_selectize <- renderUI({
+          n <- length(values$config$groupableColumns)
+          if (n>0) {
+            subset_cols = values$config$groupableColumns
+            code_output_list <- lapply(1:n, function(i) {
+              codeOutput <- paste("subset__", subset_cols[i], sep="")
+              subset_choices = sort(unique(full_data[,subset_cols[i]]))
+              print(codeOutput)
+              selectizeInput(codeOutput, subset_cols[i], choices = subset_choices, multiple = TRUE, width = "90%")
+            })
+            values$subset_inputs = paste("input$", code_output_list$codeOutput, sep = "")
+          } else code_output_list <- list()
+          # Convert the list to a tagList - this is necessary for the list of items
+          # to display properly.
+          
+          # use a div with class = "dynamicSI" to distinguish from other selectInput's
+          div( class = "dynamicSI",
+          do.call(tagList, code_output_list)
+          )
+        })
+        
+        # all_inputs <- names(input)
+        # print('all_inputs')
+        # print(all_inputs)
+        # subset_inputs = all_inputs[grep("^subset__", all_inputs)]
+        # if(length(subset_inputs > 0)) {
+        #   values$subset_inputs = paste("input$", subset_inputs, sep = "")
+        # } else {
+        #   values$subset_inputs = c()
+        # }
+        print("values$subset_inputs")
+        print(values$subset_inputs)
+        
         if(!input$dataSet %in% c("data_6_Cancer_Therapeutics_Response_Portal_(CTRP).json")) {
           values$showtabs_drc = 1
       output$'dose-response-grid-main' <- renderLiDoseResponseGrid(
@@ -323,12 +356,48 @@ shinyServer(function(input,output,session) {
     }
   })
   
+    observeEvent(input$lastSelect, {
+      if (!is.null(input$lastSelect)) {
+      print('subset observer')
+      all_inputs <- names(input)
+      subset_data <<- full_data
+      if(!is.null(subset_data)) {
+        if(length(grep("^subset__", all_inputs)) > 0) {
+          for(col_name in all_inputs[grep("^subset__", all_inputs)]) {
+            if (length(input[[col_name]])>0) {
+              sel_values_list <- input[[col_name]]
+              df_colname <- gsub("^subset__(.*)","\\1",col_name)
+              subset_data <<- subset_data[which(subset_data[[df_colname]] %in% sel_values_list),]
+            }
+          }
+        }
+        values$sub_data = subset_data
+        
+        if(!input$dataSet %in% c("data_6_Cancer_Therapeutics_Response_Portal_(CTRP).json")) {
+          values$showtabs_drc = 1
+          output$'dose-response-grid-main' <- renderLiDoseResponseGrid(
+            input="",
+            xmin = -4,
+            xmax = 2,
+            factors=c(paste(values$config$doseresponse$defaultGroupingVars,collapse = '_'), values$config$doseresponse$defaultChoicevar),
+            toggle=values$config$doseresponse$toggle,
+            data= values$sub_data
+          )
+          groupingColumns <<- values$config$groupableColumns
+          values$showtabs=1
+        } else {
+          values$showtabs_drc = 0
+          updateTabsetPanel(session,"tabs",selected="tab-gr")
+        }
+      }
+      }
+    }, ignoreNULL = T, ignoreInit = T, priority = -900)
+  
 #========== Main dose-response grid =============
   observeEvent(input$'dose-response-grid-main', {
     q = parseLabel(input, values, subset_data)
     if (input$'dose-response-grid-main' != '' && str_count(input$'dose-response-grid-main', '=') == 1) {
       output$graphPopupPlot <- renderPlotly({
-        #try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))
         ggplotly(q) %>%
         layout(
           xaxis = list(range = c(-4,2),
@@ -546,20 +615,7 @@ observeEvent(c(input$dataSet, input$plot_height), {
   })
 })
 
-output$subset_selectize <- renderUI({
-  n <- length(values$config$groupableColumns)
-  if (n>0) {
-    subset_cols = values$config$groupableColumns
-    code_output_list <- lapply(1:n, function(i) {
-      codeOutput <- paste("subset__", subset_cols[i], sep="")
-      subset_choices = sort(unique(full_data[,subset_cols[i]]))
-      selectizeInput(codeOutput, subset_cols[i], choices = subset_choices, multiple = TRUE, width = "90%")
-    })
-  } else code_output_list <- list()
-  # Convert the list to a tagList - this is necessary for the list of items
-  # to display properly.
-  do.call(tagList, code_output_list)
-})
+
 
 output$grmetric_plot_ui <- renderUI({
     if(input$box_scatter_choice == "Box plot") {
