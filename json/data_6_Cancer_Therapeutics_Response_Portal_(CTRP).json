@@ -1,10 +1,10 @@
 {
-    "datafile":["www/20170612_CTRP_GRfits.tsv"],
+    "datafile":["www/20170612_CTRP_GRfits_annotated.tsv"],
     "title": ["Cancer Therapeutics Response Portal (CTRP)"],
     "description": ["The Cancer Therapeutics Response Portal (CTRP), described in Rees et al. (PMID: [26656090] (https://www.ncbi.nlm.nih.gov/pubmed/26656090)), is a large-scale dose-response dataset created at the Broad Institute of Harvard and MIT. Originally, the data were reported with traditional drug sensitivity metrics based on relative cell count (and thus subject to artefacts due to differences in division rates). Here we present the growth-rate inhibition (GR) metrics version of the CTRP data. To calculate GR values, we inferred cell division times using the gCSI data published by Genentech (PMID: [27193678] (https://www.ncbi.nlm.nih.gov/pubmed/27193678)) with gemcitabine response used as a fiducial. Note that we discarded cell lines for which the response to gemcitabine was weak or there was no matching cell line data in the gCSI dataset, resulting in a dataset with 146 cell lines. For more details about this calculation, see Hafner et al. (2017) (PMID: [28591115] (https://www.ncbi.nlm.nih.gov/pubmed/28591115)), 'Online Methods' section."],
     "filterColumns":{},
     "renameColumns":{"Small_Molecule": "Perturbagen"},
-    "groupableColumns":["Perturbagen","Cell_Line"],
+    "groupableColumns":["Perturbagen","Cell_Line","ccle_primary_site","ccle_primary_hist", "ccle_hist_subtype_1", "cpd_status"],
     "doseresponse":{
        "xmin":["0"],"xmax":["0"],
        "defaultChoicevar":["Cell_Line"],

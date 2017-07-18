@@ -290,10 +290,10 @@ shinyServer(function(input,output,session) {
       }
       if (length(values$config$groupableColumns)==0) { values$config$groupableColumns = colnames(values$data) }
 
-      updateSelectizeInput(session, 'doseresponsegrid_choiceVar', choices = values$config$groupableColumns, server = TRUE, selected=values$config$doseresponse$defaultChoicevar)
-      updateSelectizeInput(session, 'doseresponsegrid_groupingVars', choices = values$config$groupableColumns, server = TRUE, selected=values$config$doseresponse$defaultGroupingVars)
+      #updateSelectizeInput(session, 'doseresponsegrid_choiceVar', choices = values$config$groupableColumns, server = TRUE, selected=values$config$doseresponse$defaultChoicevar)
+      #updateSelectizeInput(session, 'doseresponsegrid_groupingVars', choices = values$config$groupableColumns, server = TRUE, selected=values$config$doseresponse$defaultGroupingVars)
 
-      updateSelectizeInput(session, 'doseresponsegrid_hideselector', selected=values$config$doseresponse$hideselector)
+      #updateSelectizeInput(session, 'doseresponsegrid_hideselector', selected=values$config$doseresponse$hideselector)
       
       full_data <<- extractData(input, output, values,
                                            values$config$doseresponse$defaultChoicevar,
@@ -321,7 +321,18 @@ shinyServer(function(input,output,session) {
           
           # use a div with class = "dynamicSI" to distinguish from other selectInput's
           div( class = "dynamicSI",
-          do.call(tagList, code_output_list)
+          do.call(tagList, code_output_list),
+          if(input$dataSet == "data_6_Cancer_Therapeutics_Response_Portal_(CTRP).json") {
+            updateSelectizeInput(session,
+                                 inputId = 'subset__cpd_status',
+                                 selected = 'FDA')
+            updateSelectizeInput(session,
+                                 inputId = 'subset__ccle_primary_site',
+                                 selected = 'breast')
+            # The next line is added to hide text output from the previous line.
+            updateSelectizeInput(session, inputId = '', selected = '')
+          }
+          
           )
         })
         
@@ -337,7 +348,7 @@ shinyServer(function(input,output,session) {
         print("values$subset_inputs")
         print(values$subset_inputs)
         
-        if(!input$dataSet %in% c("data_6_Cancer_Therapeutics_Response_Portal_(CTRP).json")) {
+        # if(!input$dataSet %in% c("data_6_Cancer_Therapeutics_Response_Portal_(CTRP).json")) {
           values$showtabs_drc = 1
       output$'dose-response-grid-main' <- renderLiDoseResponseGrid(
           input="",
@@ -349,10 +360,10 @@ shinyServer(function(input,output,session) {
         )
       groupingColumns <<- values$config$groupableColumns
       values$showtabs=1
-      } else {
-        values$showtabs_drc = 0
-        updateTabsetPanel(session,"tabs",selected="tab-gr")
-      }
+      # } else {
+      #   values$showtabs_drc = 0
+      #   updateTabsetPanel(session,"tabs",selected="tab-gr")
+      # }
     }
   })
   
@@ -373,7 +384,7 @@ shinyServer(function(input,output,session) {
         }
         values$sub_data = subset_data
         
-        if(!input$dataSet %in% c("data_6_Cancer_Therapeutics_Response_Portal_(CTRP).json")) {
+        # if(!input$dataSet %in% c("data_6_Cancer_Therapeutics_Response_Portal_(CTRP).json")) {
           values$showtabs_drc = 1
           output$'dose-response-grid-main' <- renderLiDoseResponseGrid(
             input="",
@@ -385,10 +396,10 @@ shinyServer(function(input,output,session) {
           )
           groupingColumns <<- values$config$groupableColumns
           values$showtabs=1
-        } else {
-          values$showtabs_drc = 0
-          updateTabsetPanel(session,"tabs",selected="tab-gr")
-        }
+        # } else {
+        #   values$showtabs_drc = 0
+        #   updateTabsetPanel(session,"tabs",selected="tab-gr")
+        # }
       }
       }
     }, ignoreNULL = T, ignoreInit = T, priority = -900)

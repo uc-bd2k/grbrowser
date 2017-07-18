@@ -29,7 +29,7 @@ shinyUI(
             tags$script("$(document).on('change', '.dynamicSI', function () {
                               Shiny.onInputChange('lastSelect', Math.random());
                              });"),
-            fluidRow(conditionalPanel(condition = "input.subset_data%2==1", uiOutput("subset_selectize")))
+            fluidRow(conditionalPanel(condition = "input.subset_data%2==0", uiOutput("subset_selectize")))
             ),
         # Main column
         column(
