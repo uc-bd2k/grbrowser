@@ -50,7 +50,7 @@ shinyUI(
                             12,
                             liDoseResponseGrid(anchorId="dose-response-grid-main"),
                             bsModal(
-                                "graphPopup", "Graph Popup", "triggerGraphPopup",
+                                "graphPopup", "", "triggerGraphPopup",
                                 size="large", plotlyOutput("graphPopupPlot")
                             )
                         ),

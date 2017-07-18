@@ -57,7 +57,7 @@ drawPopup <- function(curve_plot, values, example) {
       curve_data = cbind(curve_data, GR)
       curve_data = as.data.frame(curve_data)
       exper = paste(curve_plot$`Small_Molecule`[row], curve_plot$`Cell_Line`[row], curve_plot$Replicate[row], sep = ' ')
-    } else if(values$config$datafile %in% c('www/20170612_gCSI_GRfits.tsv','www/20170612_CTRP_GRfits.tsv')) {
+    } else if(values$config$datafile %in% c('www/20170612_gCSI_GRfits.tsv','www/20170612_CTRP_GRfits_annotated.tsv')) {
       EC50 = curve_plot$GEC50[row]
       GRinf = curve_plot$GRinf[row]
       Hill = curve_plot$HillSlope[row]
