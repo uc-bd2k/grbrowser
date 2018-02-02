@@ -5,6 +5,7 @@ library(plotly)
 library(ggplot2)
 library(shinyLi)
 library(jsonlite)
+library(shinyWidgets)
 theme_list = c("theme_grey()","theme_bw()","theme_light()","theme_dark()","theme_minimal()","theme_classic()")
 
 shinyUI(
@@ -25,6 +26,19 @@ shinyUI(
             ),
             actionButton("datasetURL", "Get Bookmark", icon = shiny::icon("link", lib = "glyphicon")),
             hr(),
+            fluidRow(
+              column(
+                3, 
+                dropdownButton( width = "350px",
+                  #uiOutput("iLINCS"),
+                  uiOutput("iLINCS2"),
+                  uiOutput("iLINCS_label"),
+                  uiOutput("iLINCS_link"),
+                  label = "iLINCS", circle = F,icon = img(src="images/iLINCSnewLogo.png", height = "40px"), tooltip = "Search iLINCS for small molecule")
+              )
+            ),
+            br(),
+            br(),
             fluidRow(actionLink("subset_data", "Subset data")),
             fluidRow(conditionalPanel(condition = "input.subset_data%2==1", uiOutput("subset_selectize")))
             ),

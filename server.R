@@ -24,6 +24,8 @@ shinyServer(function(input,output,session) {
                       value = urlvalue)
     }
   })
+  
+  values <- reactiveValues(config=c(),data=c(),showtabs=0, showtab_drc=1, sub_data = NULL)
 
   # output$bookmark <- renderText({
   #   paste0("http://www.grcalculator.org/grbrowser/?dataset=",
@@ -248,8 +250,6 @@ shinyServer(function(input,output,session) {
     }
   }
   
-  values <- reactiveValues(config=c(),data=c(),showtabs=0, showtab_drc=1, sub_data = NULL)
-  
   output$input_table <- DT::renderDataTable(DT::datatable({
     x<-values$data
     print(colnames(x))
@@ -320,6 +320,29 @@ shinyServer(function(input,output,session) {
         values$showtabs_drc = 0
         updateTabsetPanel(session,"tabs",selected="tab-gr")
       }
+        
+      # output$iLINCS = renderUI(
+      #   selectInput(inputId = "iLINCS_type", label = "Select perturbation", choices = values$config$groupableColumns)
+      #   )
+      
+      # observeEvent(input$iLINCS_type, {
+      #   if(!is.null(input$iLINCS_type)) {
+          output$iLINCS2 = renderUI(
+            selectInput(inputId = "iLINCS_select", label = "Select a drug of interest", choices = unique(full_data[[ values$config$groupableColumns[1] ]] ))
+          )
+      #   }
+      # })
+      
+      observeEvent(input$iLINCS_select, {
+        temp = input$iLINCS_select
+        output$iLINCS_label = renderUI(
+          p("View signatures relating to ", tags$b( temp ), " on iLINCS:")
+        )
+        output$iLINCS_link = renderUI(
+          a(paste0("http://www.ilincs.org/ilincs/searchFor/", temp),
+            href = paste0("http://www.ilincs.org/ilincs/searchFor/", temp), target="_blank")
+        )
+      })
     }
   })
   
