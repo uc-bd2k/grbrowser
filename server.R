@@ -44,7 +44,7 @@ shinyServer(function(input,output,session) {
         print(URLchoice)
         updateRadioButtons(session, "dataSet",
                            choices = dataset_choices,
-                           selected = URLchoice
+                           selected = dataset_choices[[URLchoice]]
         )
       }
     }
