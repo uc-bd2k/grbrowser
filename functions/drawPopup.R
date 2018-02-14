@@ -80,7 +80,7 @@ drawPopup <- function(curve_plot, values, example) {
   curve_data_all$experiment = as.factor(curve_data_all$experiment)
   print('curve_data_all')
   print(head(curve_data_all))
-  p = ggplot(data = curve_data_all, aes(x = log10(Concentration), y = GR, colour = experiment)) + geom_line() + ggtitle("Concentration vs. GR values") + xlab('Concentration (log10 scale) μM') + ylab('GR value') + labs(colour = "") + geom_hline(yintercept = 1, size = .25) + geom_hline(yintercept = 0, size = .25) + geom_hline(yintercept = -1, size = .25)
+  p = ggplot(data = curve_data_all, aes(x = log10(Concentration), y = GR, colour = experiment)) + geom_line() + ggtitle("Concentration vs. GR values") + xlab("Concentration (log10 scale) &#956;M") + ylab('GR value') + labs(colour = "") + geom_hline(yintercept = 1, size = .25) + geom_hline(yintercept = 0, size = .25) + geom_hline(yintercept = -1, size = .25)
   print("drawPopup function end")
   return(p)
 }
