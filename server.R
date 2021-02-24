@@ -18,7 +18,7 @@ shinyServer(function(input,output,session) {
   update_browse_selector(session,c())
   observeEvent(input$dataSet, {
     if(!is.null(input$dataSet)) {
-      urlvalue = paste0("http://labsyspharm.shinyapps.io/grbrowser/?dataset=", gsub("^data_\\d+_(.*?)\\.json$", "\\1", input$dataSet), collapse = "")
+      urlvalue = paste0("/grbrowser/?dataset=", gsub("^data_\\d+_(.*?)\\.json$", "\\1", input$dataSet), collapse = "")
       print(input$dataSet)
       updateTextInput(session, "bookmark_input", label = "test",
                       value = urlvalue)
@@ -26,7 +26,7 @@ shinyServer(function(input,output,session) {
   })
 
   # output$bookmark <- renderText({
-  #   paste0("http://labsyspharm.shinyapps.io/grbrowser/?dataset=",
+  #   paste0("/grbrowser/?dataset=",
   #          gsub("^data_\\d+_(.*?)\\.json$", "\\1", input$dataSet), collapse = "")
   # })
   observe({
