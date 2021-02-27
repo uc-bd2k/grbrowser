@@ -4,6 +4,7 @@ library(plotly)
 library(ggplot2)
 library(stringr)
 library(markdown)
+library(DT)
 
 
 groupingColumns = NULL
@@ -14,16 +15,93 @@ source('functions/extractData.R', local = T)
 source('functions/update_browse_selector.R')
 source('functions/parseLabel.R')
 
+####### javascript code for modals ##########
+about.modal.js = "$('.ui.small.modal')
+.modal({
+    blurring: false
+})
+$('#about_modal').modal('show')
+;"
+bookmark.modal.js = "$('.ui.small.modal')
+.modal({
+    blurring: false
+})
+$('#bookmark_modal').modal('show')
+;"
+graph.modal.js = "$('.ui.small.modal')
+.modal({
+    blurring: false
+})
+$('#graph_modal').modal('show')
+;"
+contact.modal.js = "$('.ui.mini.modal')
+.modal({
+    blurring: false
+})
+$('#contact_modal').modal('show')
+;"
+tab.js = "$('.menu .item')
+  .tab()
+;"
+
 shinyServer(function(input,output,session) {
+  ####### start shinyServer code and run javascript code ######
+  runjs(tab.js)
+
+  ############ initialize modals ################
+  # observeEvent(input$instructions_button, {
+  #   runjs(instructions.modal.js)
+  # })
+  # observeEvent(input$download_plot_drc.modal_button, {
+  #   runjs(download_plot_drc.modal.js)
+  # })
+  observeEvent(input$about, {
+    runjs(about.modal.js)
+  })
+  # observeEvent(input$start_button, {
+  #   #runjs(start.modal.js)
+  #   shinyjs::show(id = "input_top")
+  #   shinyjs::click(id = "input_top")
+  # })
+  observeEvent(input$contact, {
+    runjs(contact.modal.js)
+  })
+  observeEvent(input$datasetURL, {
+    runjs(bookmark.modal.js)
+  })
+  observeEvent(values$graphPopup, {
+    runjs(graph.modal.js)
+  }, ignoreInit = T)
+
   update_browse_selector(session,c())
   observeEvent(input$dataSet, {
     if(!is.null(input$dataSet)) {
-      urlvalue = paste0("/grbrowser/?dataset=", gsub("^data_\\d+_(.*?)\\.json$", "\\1", input$dataSet), collapse = "")
+      urlvalue = paste0("https://labsyspharm.shinyapps.io/grbrowser/?dataset=", gsub("^data_\\d+_(.*?)\\.json$", "\\1", input$dataSet), collapse = "")
       print(input$dataSet)
       updateTextInput(session, "bookmark_input", label = "test",
                       value = urlvalue)
     }
   })
+##### code for showing/hiding tabs #####
+  #### showing first tab
+  shinyjs::onclick("drc_grid", {
+    shinyjs::hide("second_tab")
+    shinyjs::hide("third_tab")
+    shinyjs::show("first_tab")
+  })
+  ##### showing second tab
+  shinyjs::onclick("gr_metrics", {
+    shinyjs::hide("first_tab")
+    shinyjs::hide("third_tab")
+    shinyjs::show("second_tab")
+  })
+  ##### showing third tab
+  shinyjs::onclick("data_tables", {
+    shinyjs::hide("first_tab")
+    shinyjs::hide("second_tab")
+    shinyjs::show("third_tab")
+  })
+
 
   # output$bookmark <- renderText({
   #   paste0("/grbrowser/?dataset=",
@@ -248,13 +326,33 @@ shinyServer(function(input,output,session) {
     }
   }
   
-  values <- reactiveValues(config=c(),data=c(),showtabs=0, showtab_drc=1, sub_data = NULL)
+  values <- reactiveValues(config=c(),data=c(),showtabs=0, showtab_drc=1, sub_data = NULL, graphPopup = T)
   
-  output$input_table <- DT::renderDataTable(DT::datatable({
-    x<-values$data
-    print(colnames(x))
-    data.frame(x)
-  }, rownames= FALSE))
+  # output$input_table <- DT::renderDataTable(DT::datatable({
+  #   x<-values$data
+  #   print(colnames(x))
+  #   data.frame(x)
+  # }, rownames= FALSE))
+
+  output$input_table = renderDataTable({
+    DT::datatable(
+      values$data,
+      extensions = c('Buttons'#, 'FixedHeader'
+    ),
+    filter = 'top',
+    rownames = F, options = list(
+      dom = 'lBfrtip',
+      buttons = c('copy', 'csv', 'excel', 'colvis'),
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff', 'width': '100px'});",
+        "}"),
+      searchHighlight = TRUE,
+      fixedHeader = TRUE,
+      autoWidth = TRUE)
+    )
+  }, server = FALSE)
+  outputOptions(output, "input_table", suspendWhenHidden = FALSE)
 
   observe({
     toggle(condition = values$showtabs, selector = "#tabs li a[data-value=tab-data]")
@@ -322,7 +420,9 @@ shinyServer(function(input,output,session) {
       }
     }
   })
-  
+  output$graphPopupPlot <- renderPlotly({
+        NULL
+        })
 #========== Main dose-response grid =============
   observeEvent(input$'dose-response-grid-main', {
     q = parseLabel(input, values, subset_data)
@@ -337,9 +437,13 @@ shinyServer(function(input,output,session) {
                        dtick = 1)
         )
       })
-      toggleModal(session,"graphPopup")
+      #toggleModal(session,"graphPopup")
+      values$graphPopup = !values$graphPopup
+      
     }
   })
+  outputOptions(output, "graphPopupPlot", suspendWhenHidden = FALSE)
+
 
 #========== Download button for scatterplot images =======
   output$downloadScatter = downloadHandler(
