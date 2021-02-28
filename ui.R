@@ -6,6 +6,8 @@ library(ggplot2)
 library(shinyLi)
 library(jsonlite)
 library(shiny.semantic)
+library(shinycssloaders)
+library(rclipboard)
 
 theme_list = c("theme_grey()","theme_bw()","theme_light()","theme_dark()","theme_minimal()","theme_classic()")
 
@@ -17,6 +19,7 @@ shinyUI(
         tags$head(tags$link(href="css/ilincs.css",rel="stylesheet"),
                   tags$link(href="css/grbrowser.css",rel="stylesheet"),
                   tags$link(href="css/AboutGRMetrics.css",rel="stylesheet")),
+        tags$head(rclipboardSetup()),
         # displaying header
         #includeHTML("www/html/nav.html"),
         useShinyjs(),
@@ -70,14 +73,16 @@ shinyUI(
                 )
             ),
             div(class = "ui basic segment",
-                # div(class="ui input",
-                #     id = "bookmark_input",
-                #     `input type`="text",
-                #     value = "sdfassf",
-                #     #placeholder="Search...",
-                #     label = NULL
-                # )
-                textInput("bookmark_input", label= NULL, value = "", width = '500px')
+                div(class = "ui fluid action input",
+                    tags$input(type = "text", value = "", id = "bookmark_input", style = "width:100%;")#,
+                    # div(class = "ui button greay right labeled icon button", id = "clipbtn",
+                    #     tags$i(class = "copy icon"),
+                    #     # UI ouput for the copy-to-clipboard buttons
+                    #     #uiOutput("clipbtn", inline = T),
+                    #     "Copy"
+                    # )
+                ),
+                uiOutput("clipbtn", inline = T)
             )
         ),
         ###### Bookmark modal end ########
@@ -90,7 +95,7 @@ shinyUI(
                 )
             ),
             div(class = "ui center aligned basic segment",
-                plotlyOutput("graphPopupPlot")
+                plotlyOutput("graphPopupPlot") %>% withSpinner(type = 2, color = "black", color.background = "#ffffff")
             )
         ),
 
@@ -118,11 +123,16 @@ shinyUI(
             #div(class = "ui main basic segment", style = "min-height: 70vh",
             #####
             #),
-            div(class = "ui two column grid",
+            div(class = "ui two column grid",  style = "min-height: 100vh; max-width: 1200px;",
                     div(class = "row",
                         div(class = "four wide column",
-                            radioButtons('dataSet', 'Select Dataset to Browse', choices = c('') ),
-                            actionButton("datasetURL", "Get Bookmark", icon = shiny::icon("link", lib = "glyphicon")),
+                        div(class="ui basic segment", #style = "padding-top: 0px;,
+                            tags$h4("Select Dataset to Browse"),
+                            radioButtons('dataSet', '', choices = c('') ),
+                            div(class="ui basic center aligned segment",
+                                div(class = "ui button action-button", id = "datasetURL", "Get Bookmark", icon = shiny::icon("link", lib = "glyphicon"))
+                            ),
+                            #actionButton("datasetURL", "Get Bookmark", icon = shiny::icon("link", lib = "glyphicon")),
                             hr(),
                             div(class = "row",
                                 actionLink("subset_data", "Subset data")
@@ -130,6 +140,7 @@ shinyUI(
                             div(class = "row",
                                 conditionalPanel(condition = "input.subset_data%2==1", uiOutput("subset_selectize"))
                             )
+                        )
                         ),
                         div(class = "twelve wide column",
                             uiOutput("datasetTitle"),
@@ -152,16 +163,22 @@ shinyUI(
                                     div(class = "ui four column grid",
                                     div(class = "row",
                                         div(class = "three wide column",
-                                            radioButtons('box_scatter_choice', label = NULL, choices = c("Box plot", "Scatter plot"), inline = T)
+                                            radioButtons('box_scatter_choice', label = NULL, choices = c("Box plot", "Scatter plot"), inline = F)
+                                        ),
+                                        div(class = "four wide column",
+                                            div(class = "ui secondary button",
+                                                downloadLink("downloadScatter", "Download image",
+                                                style = "color: white;")
+                                            )
+                                            #downloadButton('downloadScatter', label = "Download image")
+                                            #div(class = "ui button action-button", id = "downloadScatter", "Download image")
                                         ),
                                         div(class = "two wide column",
-                                            downloadButton('downloadScatter', label = "Download image")
+                                            radioButtons('scatterImageType', label = NULL, choices = c('.pdf', '.tiff'), inline = F)
                                         ),
-                                        div(class = "two wide column",
-                                            radioButtons('scatterImageType', label = NULL, choices = c('.pdf', '.tiff'), inline = T)
-                                        ),
-                                        div(class = "three wide column",
-                                            actionButton('options_panel', 'Plot Options')
+                                        div(class = "four wide column",
+                                            div(class = "ui button action-button", id = "options_panel", "Plot Options")
+                                            #actionButton('options_panel', 'Plot Options')
                                         )
                                     )
                                     ),
@@ -190,17 +207,25 @@ shinyUI(
                                     ),
                                     div(class = "ui four column grid",
                                     div(class = "row",
-                                        div(class = "two wide column",
+                                        div(class = "four wide column",
                                             selectInput('theme_select', "Select Theme", choices = theme_list)
                                         ),
+                                        shinyjs::hidden(
                                         div(class = "two wide column",
                                             selectInput('add_units', "Select units", choices = c("", "nanomolar", "micromolar"))
                                         ),
                                         div(class = "two wide column",
-                                            textInput('plot_title', 'Plot title')
+                                            div(class = "ui fluid action input",
+                                            tags$input(type = "text", value = "", id = "plot_title", placeholder="Plot title", style = "width:100%;")
+                                        )
+                                            #textInput('plot_title', 'Plot title')
                                         ),
                                         div(class = "two wide column",
-                                            textInput('x_label', 'X axis label')
+                                            div(class = "ui fluid action input",
+                                            tags$input(type = "text", value = "", id = "x_label", placeholder="X axis label", style = "width:100%;")
+                                        )
+                                            #textInput('x_label', 'X axis label')
+                                        )
                                         )
                                     )
                                     )
@@ -239,7 +264,7 @@ shinyUI(
                     )
                 ),
             ######### footer start #########
-            div(class = "ui bottom attached inverted footer segment", style = "margin: 0px; flex: 1;",
+            div(class = "ui bottom attached inverted footer segment", style = "margin: 0px; flex: 1; max-height:50px; position:sticky;",
                 div(class = "ui center aligned container",
                     div(class = "ui horizontal inverted large divided link list",
                         a(class = "item", div(class = "action-button", "About", id = "about") ),

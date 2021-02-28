@@ -76,12 +76,32 @@ shinyServer(function(input,output,session) {
   update_browse_selector(session,c())
   observeEvent(input$dataSet, {
     if(!is.null(input$dataSet)) {
-      urlvalue = paste0("https://labsyspharm.shinyapps.io/grbrowser/?dataset=", gsub("^data_\\d+_(.*?)\\.json$", "\\1", input$dataSet), collapse = "")
+      #urlvalue = paste0("https://labsyspharm.shinyapps.io/grbrowser/?dataset=", gsub("^data_\\d+_(.*?)\\.json$", "\\1", input$dataSet), collapse = "")
+      values$url = paste0("https://labsyspharm.shinyapps.io/grbrowser/?dataset=", gsub("^data_\\d+_(.*?)\\.json$", "\\1", input$dataSet), collapse = "")
+
       print(input$dataSet)
-      updateTextInput(session, "bookmark_input", label = "test",
-                      value = urlvalue)
+      updateTextInput(session, "bookmark_input", label = "test", value = values$url)
+      
+      # output$my_button <- renderUI({
+      #   actionButton("action", label = input$sample_text)
+      # })
+      #shinyjs::html(id = "bookmark_input", html = paste("value=", urlvalue, sep = ""), add = T)
     }
   })
+
+  # Add clipboard buttons
+  output$clip <- renderUI({
+    rclipButton("clipbtn", "Copy", values$url, icon("clipboard"))
+  })
+  # clipboard<-function(x) {
+  #   con <- pipe("xclip -selection clipboard -i  -display :1", open="w") # note the 1 here
+  #   writeChar(x, con)
+  #   close(con)
+  # }
+  #shinyjs::onclick("clipbtn", clipr::write_clip(values$url))
+  #shinyjs::onclick("clipbtn", clipboard(values$url))
+  #observeEvent(input$clipbtn, clipr::write_clip(values$url))
+  
 ##### code for showing/hiding tabs #####
   #### showing first tab
   shinyjs::onclick("drc_grid", {
@@ -326,7 +346,7 @@ shinyServer(function(input,output,session) {
     }
   }
   
-  values <- reactiveValues(config=c(),data=c(),showtabs=0, showtab_drc=1, sub_data = NULL, graphPopup = T)
+  values <- reactiveValues(config=c(),data=c(),showtabs=0, showtab_drc=1, sub_data = NULL, graphPopup = T, url = "")
   
   # output$input_table <- DT::renderDataTable(DT::datatable({
   #   x<-values$data
@@ -342,7 +362,25 @@ shinyServer(function(input,output,session) {
     filter = 'top',
     rownames = F, options = list(
       dom = 'lBfrtip',
-      buttons = c('copy', 'csv', 'excel', 'colvis'),
+      buttons = list(
+        'copy',
+        #'csv',
+        list(
+          extend = 'csv', 
+          title = 'download1'
+        ),  
+        list(
+          extend = 'csvHtml5',
+          text = "TSV",
+          fieldSeparator = "\t",
+          extension = ".tsv", 
+          title = 'download1'
+        ), 
+        list(
+          extend = 'excel', 
+          title = 'download1'
+        ), 
+        'colvis'),
       initComplete = JS(
         "function(settings, json) {",
         "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff', 'width': '100px'});",
@@ -372,7 +410,7 @@ shinyServer(function(input,output,session) {
       values$config <- fromJSON(json_data)
       
       output$datasetTitle <- renderUI(
-        tags$div(tags$h3(actionLink('dataset_title', values$config$title)))
+        tags$div(tags$h2(actionLink('dataset_title', values$config$title)))
       )
       
       output$datasetInfo <- renderUI(
@@ -667,9 +705,9 @@ output$subset_selectize <- renderUI({
 
 output$grmetric_plot_ui <- renderUI({
     if(input$box_scatter_choice == "Box plot") {
-      plotlyOutput('boxplot', height = input$plot_height)
+      plotlyOutput('boxplot', height = input$plot_height) %>% withSpinner(type = 2, color = "black", color.background = "#ffffff")
     } else {
-      plotlyOutput("plotlyScatter1", height = input$plot_height)
+      plotlyOutput("plotlyScatter1", height = input$plot_height) %>% withSpinner(type = 2, color = "black", color.background = "#ffffff")
     }
 })
 
