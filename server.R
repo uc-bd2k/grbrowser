@@ -5,6 +5,7 @@ library(ggplot2)
 library(stringr)
 library(markdown)
 library(DT)
+library(tibble)
 
 
 groupingColumns = NULL
@@ -12,8 +13,20 @@ groupingColumns = NULL
 source('functions/drawScatter.R', local = T)
 source('functions/drawPopup.R')
 source('functions/extractData.R', local = T)
-source('functions/update_browse_selector.R')
+#source('functions/update_browse_selector.R')
 source('functions/parseLabel.R')
+
+data_tbl = tribble(
+  ~file_names, ~dataset_names, ~url_names,
+  "data_1_Broad-HMS_LINCS_Joint_Project.json", "Broad-HMS LINCS Joint Project", "Broad-HMS_LINCS_Joint_Project",
+  "data_2_LINCS_MCF10A_Common_Project.json", "LINCS MCF10A Common Project", "LINCS_MCF10A_Common_Project",
+  "data_3_HMS_LINCS_Seeding_Density_Project.json", "HMS LINCS Seeding Density Project", "HMS_LINCS_Seeding_Density_Project",
+  "data_4_MEP-HMS_LINCS_Joint_Project.json", "MEP-HMS LINCS Joint Project", "MEP-HMS_LINCS_Joint_Project",
+  "data_5_Genentech_Cell_Line_Screening_Initiative_(gCSI).json", "Genentech Cell Line Screening Initiative (gCSI)", "Genentech_Cell_Line_Screening_Initiative_(gCSI)",
+  "data_6_Cancer_Therapeutics_Response_Portal_(CTRP).json", "Cancer Therapeutics Response Portal (CTRP)", "Cancer_Therapeutics_Response_Portal_(CTRP)"
+)
+dataset_choices = data_tbl$file_names
+names(dataset_choices) = data_tbl$dataset_names
 
 ####### javascript code for modals ##########
 about.modal.js = "$('.ui.small.modal')
@@ -39,6 +52,12 @@ contact.modal.js = "$('.ui.mini.modal')
     blurring: false
 })
 $('#contact_modal').modal('show')
+;"
+support.modal.js = "$('.ui.large.modal')
+.modal({
+    blurring: false
+})
+$('#support_modal').modal('show')
 ;"
 tab.js = "$('.menu .item')
   .tab()
@@ -73,7 +92,14 @@ shinyServer(function(input,output,session) {
     runjs(graph.modal.js)
   }, ignoreInit = T)
 
-  update_browse_selector(session,c())
+  observeEvent(input$support, {
+    runjs(support.modal.js)
+  })
+  observeEvent(input$support2, {
+    runjs(support.modal.js)
+  })
+
+  #update_browse_selector(session,c())
   observeEvent(input$dataSet, {
     if(!is.null(input$dataSet)) {
       #urlvalue = paste0("https://labsyspharm.shinyapps.io/grbrowser/?dataset=", gsub("^data_\\d+_(.*?)\\.json$", "\\1", input$dataSet), collapse = "")
@@ -129,20 +155,15 @@ shinyServer(function(input,output,session) {
   # })
   observe({
     query <- parseQueryString(session$clientData$url_search)
-    # Add underscores to dataset names for url
-    
-    URLnames = gsub(" ", "_", (names(dataset_choices)))
-    print('URLnames')
-    print(URLnames)
     if(length(query) > 0) {
+      print("bookmark!")
       if (!is.null(query[['dataset']]) & query[['dataset']] %in% URLnames) {
         # Take out underscores from dataset name in URL
-        URLchoice = gsub("_", " ", query[['dataset']])
-        print('URLchoice')
-        print(URLchoice)
+        URLchoice = match(query[['dataset']], data_tbl$url_names)
+
         updateRadioButtons(session, "dataSet",
                            choices = dataset_choices,
-                           selected = dataset_choices[[URLchoice]]
+                           selected = dataset_choices[URLchoice]
         )
       }
     }
@@ -156,19 +177,33 @@ shinyServer(function(input,output,session) {
   boxplot_data_global = NULL
   #=========== plotly boxplots ===========================
   redrawPlotlyBox <- function(input, values) {
+    print("boxplot")
     subset_data <<- full_data
+    #print("subset_data1")
+    #print(head(subset_data))
     all_inputs <- names(input)
-    for(col_name in all_inputs[grep("^subset__", all_inputs)]) {
+    #print("all_inputs")
+    #print(all_inputs)
+    #print("all_inputs_grep")
+    #print(all_inputs[grep("^subset__", all_inputs)])
+    cols = intersect(all_inputs[grep("^subset__", all_inputs)], colnames(subset_data))
+    for(col_name in cols) {
       if (length(input[[col_name]])>0) {
+        #print(col_name)
         sel_values_list <- input[[col_name]]
+        #print("sel_values_list")
+        #print(sel_values_list)
         df_colname <- gsub("^subset__(.*)","\\1",col_name)
         subset_data <<- subset_data[which(subset_data[[df_colname]] %in% sel_values_list),]
       }
     }
+    #print("subset_data2")
+    #print(head(subset_data))
     values$sub_data = subset_data
-    
+    #print("values$sub_data")
+    #print(values$sub_data)
     parameter_choice = input$pick_box_y
-    print(parameter_choice)
+    #print(parameter_choice)
     parameter_choice_format = parameter_choice
     #print(df_sub)
     if(parameter_choice == 'GR50') {
@@ -203,9 +238,9 @@ shinyServer(function(input,output,session) {
     y_variable = get(parameter_choice, envir = as.environment(boxplot_data))
     point_color = factor(get(input$pick_box_point_color, envir = as.environment(boxplot_data)))
     
-    unit_label = gsub("nanomolar", "nM", input$add_units)
-    unit_label = gsub("micromolar", paste0("&#956;", "M"), unit_label)
-    
+    #unit_label = gsub("nanomolar", "nM", input$add_units)
+    #unit_label = gsub("micromolar", paste0("&#956;", "M"), unit_label)
+    print(head(boxplot_data))
     if(dim(boxplot_data)[1] > 0) {
       p <- ggplot(boxplot_data, aes(x = x_factor, y = y_variable)) +
         geom_boxplot(aes(fill = x_factor, alpha = 0.3), outlier.color = NA, show.legend = F) +
@@ -293,14 +328,18 @@ shinyServer(function(input,output,session) {
             geom_segment(x = (lenA+1)/2, y = lh, xend = (lenA+1)/2, yend = lh+bump) +
             geom_segment(x = (lenA+1)+((lenB-1)/2), y = lh, xend = (lenA+1)+((lenB-1)/2), yend = lh+bump)
         }
-        p_plotly = p + labs(y = paste(parameter_choice_format, unit_label))
-        if(input$add_units == "micromolar") {
-          p_ggplot = p + labs(y = bquote(.(parameter_choice) ~ .(quote(mu)) * "M"))
-        } else if(input$add_units == "nanomolar") {
-          p_ggplot = p + labs(y = paste(parameter_choice, "nM"))
-        } else {
-          p_ggplot = p + labs(y = parameter_choice)
-        }
+
+        p_plotly = p + labs(y = parameter_choice_format)
+        p_ggplot = p + labs(y = parameter_choice)
+
+        # p_plotly = p + labs(y = paste(parameter_choice_format, unit_label))
+        # if(input$add_units == "micromolar") {
+        #   p_ggplot = p + labs(y = bquote(.(parameter_choice) ~ .(quote(mu)) * "M"))
+        # } else if(input$add_units == "nanomolar") {
+        #   p_ggplot = p + labs(y = paste(parameter_choice, "nM"))
+        # } else {
+        #   p_ggplot = p + labs(y = parameter_choice)
+        # }
         
         plotScatter_box <<- p_ggplot
         
@@ -311,15 +350,18 @@ shinyServer(function(input,output,session) {
           p_plotly[[2]]$yaxis$range[2] = top_y
         }
       } else {
-        p_plotly = p + labs(y = paste(parameter_choice_format, unit_label))
-        if(input$add_units == "micromolar") {
-          p_ggplot = p + labs(y = bquote(.(parameter_choice) ~ .(quote(mu)) * "M"))
-        } else if(input$add_units == "nanomolar") {
-          p_ggplot = p + labs(y = paste(parameter_choice, "nM"))
-        } else {
-          p_ggplot = p + labs(y = parameter_choice)
-        }
+        # p_plotly = p + labs(y = paste(parameter_choice_format, unit_label))
+        # if(input$add_units == "micromolar") {
+        #   p_ggplot = p + labs(y = bquote(.(parameter_choice) ~ .(quote(mu)) * "M"))
+        # } else if(input$add_units == "nanomolar") {
+        #   p_ggplot = p + labs(y = paste(parameter_choice, "nM"))
+        # } else {
+        #   p_ggplot = p + labs(y = parameter_choice)
+        # }
         
+        p_plotly = p + labs(y = parameter_choice_format)
+        p_ggplot = p + labs(y = parameter_choice)
+
         plotScatter_box <<- p_ggplot
         p_plotly = plotly_build(p_plotly)
       }
@@ -367,18 +409,18 @@ shinyServer(function(input,output,session) {
         #'csv',
         list(
           extend = 'csv', 
-          title = 'download1'
+          title = input$dataSet
         ),  
         list(
           extend = 'csvHtml5',
           text = "TSV",
           fieldSeparator = "\t",
           extension = ".tsv", 
-          title = 'download1'
+          title = input$dataSet
         ), 
         list(
           extend = 'excel', 
-          title = 'download1'
+          title = input$dataSet
         ), 
         'colvis'),
       initComplete = JS(
@@ -794,8 +836,9 @@ observeEvent(input$dataSet, {
     all_max = all_max + padding*all_range
     all_min = -all_max
     #plug in a filler data frame
-    p = ggplot(data = mtcars, aes(x = mpg, y = wt)) + geom_abline(slope = 1, intercept = 0, size = .25) + scale_x_continuous(limits = c(all_min, all_max)) + scale_y_continuous(limits = c(all_min, all_max)) + coord_fixed() + xlab('') + ylab('') + ggtitle('') + geom_blank()
-    
+    #dat = mtcars
+    #p = ggplot(data = dat, aes(x = mpg, y = wt)) + geom_abline(slope = 1, intercept = 0, size = .25) + scale_x_continuous(limits = c(all_min, all_max)) + scale_y_continuous(limits = c(all_min, all_max)) + coord_fixed() + xlab('') + ylab('') + ggtitle('') + geom_blank()
+    p = ggplot()
     df_full <<- NULL
     print(3)
     #try(png(paste("/mnt/raid/tmp/junk1",gsub(" ","_",date()),as.character(as.integer(1000000*runif(1))),".png",sep="_")))

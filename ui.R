@@ -11,6 +11,18 @@ library(rclipboard)
 
 theme_list = c("theme_grey()","theme_bw()","theme_light()","theme_dark()","theme_minimal()","theme_classic()")
 
+data_tbl = tribble(
+  ~file_names, ~dataset_names, ~url_names,
+  "data_1_Broad-HMS_LINCS_Joint_Project.json", "Broad-HMS LINCS Joint Project", "Broad-HMS_LINCS_Joint_Project",
+  "data_2_LINCS_MCF10A_Common_Project.json", "LINCS MCF10A Common Project", "LINCS_MCF10A_Common_Project",
+  "data_3_HMS_LINCS_Seeding_Density_Project.json", "HMS LINCS Seeding Density Project", "HMS_LINCS_Seeding_Density_Project",
+  "data_4_MEP-HMS_LINCS_Joint_Project.json", "MEP-HMS LINCS Joint Project", "MEP-HMS_LINCS_Joint_Project",
+  "data_5_Genentech_Cell_Line_Screening_Initiative_(gCSI).json", "Genentech Cell Line Screening Initiative (gCSI)", "Genentech_Cell_Line_Screening_Initiative_(gCSI)",
+  "data_6_Cancer_Therapeutics_Response_Portal_(CTRP).json", "Cancer Therapeutics Response Portal (CTRP)", "Cancer_Therapeutics_Response_Portal_(CTRP)"
+)
+dataset_choices = data_tbl$file_names
+names(dataset_choices) = data_tbl$dataset_names
+
 shinyUI(
     #fluidPage(
     semanticPage(
@@ -54,6 +66,20 @@ shinyUI(
             )
         ),
         ######## about modal end #########
+
+        #### support modal start #########
+        div(class = "ui large modal", id = "support_modal",
+            div(class = "header", "Support",
+                div(class = "actions", style = "float: right; display: inline-block; vertical-align: top;",
+                    div(class = "ui red basic circular cancel icon button", uiicon(type = "window close"))
+                )
+            ),
+            div(class = "ui center aligned basic segment", style = "padding-top:0px;",
+                includeHTML("www/support.html")
+            )
+        ),
+        ######## support modal end #########
+
         #### contact modal start #########
         div(class = "ui mini modal", id = "contact_modal",
             div(class = "header", "Contact us",
@@ -116,7 +142,7 @@ shinyUI(
                     a(class = "item", "About GR Metrics", href = "/grtutorial/", style = "font-size: 16px; padding: 5px; margin: 0px;"),
                     a(class = "item", "Online GR Calculator", href = "/grcalculator/", style = "font-size: 16px; padding: 5px; margin: 0px;"),
                     a(class = "item", "LINCS Dose-Response Datasets", href = "/grbrowser/", style = "font-size: 16px; padding: 5px; margin: 0px;"),
-                    a(class = "item", "Support", href = "/grtutorial/support.html", style = "font-size: 16px; padding: 5px; margin: 0px;"),
+                    a(class = "item action-button", "Support", id="support", style = "font-size: 16px; padding: 5px; margin: 0px;"),
                     a(class = "item", img(class = "logo", src = "logo_harvard_150.png"),
                     href = "http://sorger.med.harvard.edu" )
                 )
@@ -130,7 +156,7 @@ shinyUI(
                         div(class = "four wide column",
                         div(class="ui basic segment", #style = "padding-top: 0px;,
                             tags$h4("Select Dataset to Browse"),
-                            radioButtons('dataSet', '', choices = c('') ),
+                            radioButtons('dataSet', '', choices = dataset_choices ),
                             div(class="ui basic center aligned segment",
                                 div(class = "ui button action-button", id = "datasetURL", "Get Bookmark", icon = shiny::icon("link", lib = "glyphicon"))
                             ),
@@ -216,6 +242,7 @@ shinyUI(
                                         div(class = "two wide column",
                                             selectInput('add_units', "Select units", choices = c("", "nanomolar", "micromolar"))
                                         ),
+                                        
                                         div(class = "two wide column",
                                             div(class = "ui fluid action input",
                                             tags$input(type = "text", value = "", id = "plot_title", placeholder="Plot title", style = "width:100%;")
@@ -234,10 +261,10 @@ shinyUI(
                                     ),
                                     div(class = "ui two column grid",
                                     div(class = "row",
-                                        div(class = "four wide column",
+                                        div(class = "three wide column",
                                             uiOutput("scatter")
                                         ),
-                                        div(class = "eight wide column",
+                                        div(class = "ten wide column", style="padding:0px;",
                                             uiOutput("grmetric_plot_ui")
                                         )
                                     )
