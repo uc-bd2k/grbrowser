@@ -116,9 +116,9 @@ shinyServer(function(input,output,session) {
   })
 
   # Add clipboard buttons
-  output$clip <- renderUI({
-    rclipButton("clipbtn", "Copy", values$url, icon("clipboard"))
-  })
+  # output$clip <- renderUI({
+  #   rclipButton("clipbtn", "Copy", values$url, icon("clipboard"))
+  # })
   # clipboard<-function(x) {
   #   con <- pipe("xclip -selection clipboard -i  -display :1", open="w") # note the 1 here
   #   writeChar(x, con)

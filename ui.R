@@ -7,7 +7,8 @@ library(shinyLi)
 library(jsonlite)
 library(shiny.semantic)
 library(shinycssloaders)
-library(rclipboard)
+#library(rclipboard)
+library(tibble)
 
 theme_list = c("theme_grey()","theme_bw()","theme_light()","theme_dark()","theme_minimal()","theme_classic()")
 
@@ -33,7 +34,7 @@ shinyUI(
             tags$link(href="css/grbrowser.css",rel="stylesheet"),
             tags$link(href="css/AboutGRMetrics.css",rel="stylesheet")
         ),
-        tags$head(rclipboardSetup()),
+        #tags$head(rclipboardSetup()),
         # displaying header
         #includeHTML("www/html/nav.html"),
         useShinyjs(),
@@ -109,8 +110,8 @@ shinyUI(
                     #     #uiOutput("clipbtn", inline = T),
                     #     "Copy"
                     # )
-                ),
-                uiOutput("clipbtn", inline = T)
+                )#,
+                #uiOutput("clipbtn", inline = T)
             )
         ),
         ###### Bookmark modal end ########
@@ -157,9 +158,9 @@ shinyUI(
                         div(class="ui basic segment", #style = "padding-top: 0px;,
                             tags$h4("Select Dataset to Browse"),
                             radioButtons('dataSet', '', choices = dataset_choices ),
-                            div(class="ui basic center aligned segment",
-                                div(class = "ui button action-button", id = "datasetURL", "Get Bookmark", icon = shiny::icon("link", lib = "glyphicon"))
-                            ),
+                            # div(class="ui basic center aligned segment",
+                            #     div(class = "ui button action-button", id = "datasetURL", "Get Bookmark", icon = shiny::icon("link", lib = "glyphicon"))
+                            # ),
                             #actionButton("datasetURL", "Get Bookmark", icon = shiny::icon("link", lib = "glyphicon")),
                             hr(),
                             div(class = "row",
